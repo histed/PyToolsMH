@@ -36,7 +36,7 @@ def getVariablesBySubject(subjNum, dateSpec=None, xmlName=None):
     ## get date specs from the on-disk directory
     allDateDirs = os.listdir(dataPath)
 
-    if dateSpec is None:
+    if dateSpec is None or (not dateSpec):
         tDir = os.path.join(dataPath, allDateDirs[-1], fullEName, 'Saved Variables')
     else:
         raise RuntimeError, 'Need to implement date parsing'
@@ -53,7 +53,7 @@ def getVariablesBySubject(subjNum, dateSpec=None, xmlName=None):
     else:
         xmlDiskName = xmlName
 
-    if re.match('\.xml$', xmlDiskName) is not None:
+    if re.match('\.xml$', xmlDiskName) is None:
         xmlDiskName = xmlDiskName + '.xml'
 
     fullXmlName = os.path.join(tDir, xmlDiskName)
