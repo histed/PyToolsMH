@@ -125,14 +125,14 @@ def diffXmlTwoDates(subjNum, dateSpecBefore, dateSpecFinal=None, xmlName=None):
 
 def printChanges(changedD,oldD):
     
-    print changedD.dict
-    print oldD.dict
+    #print changedD.dict
+    #print oldD.dict
     sortOrig = sorted(copy.copy(changedD.dict).items(), key=operator.itemgetter(0))
 
     #print '** %s to %s'  % (oldD.xmlFileName, changedD.xmlFileName)
 
     for (varName, val) in sortOrig:
-        print '  %-35s: %7s -> %7s' % (varName, val, oldD.dict[varName])
+        print '  %-35s: %7s -> %7s' % (varName, oldD.dict[varName], val)
 
 
 ################
