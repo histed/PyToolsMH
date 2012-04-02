@@ -3,6 +3,7 @@ import os.path
 import re
 import copy
 from xml.dom import minidom
+import string
 import operator
 
 ################
@@ -17,6 +18,9 @@ fullEName = ('%s_HoldAndDetectConstant_%s' %
              (rootGitPath, exptName))
 
 ################
+
+
+
 
 class varDict:
     """To read vals from xml file: init with empty argument, then call getVariablesFromDisk"""
@@ -137,10 +141,33 @@ def printChanges(changedD,oldD):
 
 ################
 
+def getAllDatesByXmlName(xmlFileName):
+    """Returns: a list of strings giving all dates for this xmlname.
+    If xmlFileName is none, don't restrict by xml name"""
 
+    if xmlFileName is not None and xmlFileName[-3:].lower() != "xml":
+        xmlFileName = xmlFileName + '.xml'
 
+    dirList = []
+    for root, dirnames, filenames in os.walk(dataPath):
+        # prune irrelevant dirs
+        delList = [x for x in dirnames if (string.find(x,'_Users') == 0 and string.find(x,exptName)==-1)]
+        if len(delList) > 0:
+            for tL in delList:
+                dirnames.remove(tL)
 
+        if string.find(exptName, root):
+            if xmlFileName is None or xmlFileName in filenames:
+                dirList.append(root)
 
+    rePat = '^.*MWVariables-backups/backup-after-sync-([0-9]*)/_Users_.*$'
+    dateList = set()
+    for tDir in dirList:
+        tMatch = re.match(rePat, tDir)
+        if tMatch is not None:
+            dateList.update(tMatch.groups())
 
+    dateList = sorted(dateList)
+    return dateList
 
 
