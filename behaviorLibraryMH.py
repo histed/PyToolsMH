@@ -5,12 +5,12 @@ import copy
 from xml.dom import minidom
 import string
 import operator
+import directoryConstants as dc; reload(dc)
 
 ################
 # constants
 
-## constants
-dataPath = '/Users/histed/data/mus-behavior/MWVariables-backups';
+dataPath = dc.varSyncDir
 exptName = 'HoldAndDetectConstant8';
 
 rootGitPath = '_Users_holdanddetect_ExperimentXML-git';
