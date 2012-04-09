@@ -5,6 +5,6 @@ import os
 
 if hostname == 'MaunsellMouse1.local':
     varSyncDir = '/Users/holdanddetect/MWVariables-backups';
-elif hostname == 'mambo.local':
+elif hostname == 'mambo':
     varSyncDir = '/Users/histed/data/mus-behavior/MWVariables-backups';
 
