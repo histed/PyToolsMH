@@ -26,9 +26,11 @@ class varDict:
     """To read vals from xml file: init with empty argument, then call getVariablesFromDisk"""
     xmlFileName = None
     dict = None  # must be initialized in init otherwise this is a class variable!!
+    xmlTypeDict = None
 
     def __init__(self):
         self.dict = dict()
+        self.xmlTypeDict = dict()
 
     def printVarDict(self):
         """format it nicely and print it"""
@@ -50,7 +52,9 @@ class varDict:
         m0 = m.getElementsByTagName('variable_assignments')[0] # should only be one in the file
         varNames = [a.attributes.getNamedItem('variable').value for a in m0.childNodes]
         varVals = [a.attributes.getNamedItem('value').value for a in m0.childNodes]
-        self.dict = dict(zip(varNames, varVals))  
+        varTypes = [a.attributes.getNamedItem('type').value for a in m0.childNodes]
+        self.dict = dict(zip(varNames, varVals))
+        self.xmlTypeDict = dict(zip(varNames, varTypes))        
         self.xmlFileName = inFileName
 
     def getVariablesBySubject(self, subjNum, dateSpec=None, xmlName=None):
