@@ -50,9 +50,9 @@ class varDict:
             m = minidom.parse(fh)
 
         m0 = m.getElementsByTagName('variable_assignments')[0] # should only be one in the file
-        varNames = [a.attributes.getNamedItem('variable').value for a in m0.childNodes]
-        varVals = [a.attributes.getNamedItem('value').value for a in m0.childNodes]
-        varTypes = [a.attributes.getNamedItem('type').value for a in m0.childNodes]
+        varNames = [a.attributes.getNamedItem('variable').value for a in m0.childNodes if a.nodeName != '#text']
+        varVals = [a.attributes.getNamedItem('value').value for a in m0.childNodes if a.nodeName != '#text']
+        varTypes = [a.attributes.getNamedItem('type').value for a in m0.childNodes if a.nodeName != '#text' ]
         self.dict = dict(zip(varNames, varVals))
         self.xmlTypeDict = dict(zip(varNames, varTypes))        
         self.xmlFileName = inFileName
