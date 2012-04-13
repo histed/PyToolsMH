@@ -4,6 +4,37 @@
 
 import numpy as np
 from numpy import *
+import scipy.interpolate 
+
+# smooth with lowess:
+# from Bio.Statistics.lowess import lowess
+# lowess(x,y,f,iter)  f is in range [0..1]
+
+def smooth_lowess(y, x=None, span=10, iter=3):
+    import Bio.Statistics.lowess
+    
+    if x is None:
+        x = np.arange(len(y), dtype='float')
+    if len(y) < 2:
+        raise ValueError, 'Input must have length > 1'
+    
+    nPts = len(y)
+    f = 1.0*span/nPts
+
+    smY = Bio.Statistics.lowess.lowess(np.asarray(x,dtype='float'),
+                                       np.asarray(y, dtype='float'),
+                                       f,iter=iter)
+
+    return smY
+
+def smooth_spline(y, x=None, knots=None, degree=3):
+    """knots is s in scipy.interpolate.UnivariateSpline"""
+    if x is None:
+        x = np.arange(len(y))
+    if len(y) < 2:
+        raise ValueError, 'Input must have length > 1'
+    s = scipy.interpolate.UnivariateSpline(x, y, w=None, bbox=[None,None], k=degree, s=knots)
+    return s(x)
 
 def chop(x, sig=2):
     nSig = sig-(np.floor(np.log10(x)))-1
@@ -206,3 +237,16 @@ def vec2padded(invec, startNs, endNs=None, pad=NaN, dtype=float64, matOffsets=No
         outMat[iR,matOffsets[iR]:size(tV)] = tV
 
     return outMat
+
+def convertToFloat(listV):
+    # deals with errors by substituting NaNs
+    outA = np.ones((len(listV),))*np.NaN
+
+    for i, tItem in enumerate(listV):
+        try:
+            outA[i] = float(tItem)
+        except:
+            outA[i] = np.NaN;  # failure to convert
+
+    return(outA)
+
