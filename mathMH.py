@@ -6,9 +6,23 @@ import numpy as np
 from numpy import *
 import scipy.interpolate 
 
+# see also Savitsky-Golay
+#  I should add this code
+#http://www.scipy.org/Cookbook/SavitzkyGolay
+# for SG and lowess comparison see:
+#http://homepages.ihug.co.nz/~deblight/AUTResearch/papers/Black_Art_Smoothing.pdf
+
+#  In matlab, lowess uses a 1-degree polynomial model
+#           loess uses a 2-degree poly.
+#    See         http://www.mathworks.com/help/toolbox/curvefit/smooth.html
+
 # smooth with lowess:
 # from Bio.Statistics.lowess import lowess
 # lowess(x,y,f,iter)  f is in range [0..1]
+#   I believe the Biopython lowess uses a 1-degree polynomial
+#   code is  http://biopython.org/DIST/docs/api/Bio.Statistics.lowess-pysrc.html#lowess
+
+
 
 def smooth_lowess(y, x=None, span=10, iter=3):
     import Bio.Statistics.lowess
