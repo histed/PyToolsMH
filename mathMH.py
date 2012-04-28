@@ -3,7 +3,7 @@
 # histed imported 120309
 
 import numpy as np
-from numpy import *
+#from numpy import *
 import scipy.interpolate 
 
 # see also Savitsky-Golay
@@ -75,8 +75,8 @@ def binAvg(inArray, axis=0, nInBin=10):
     """
 
     nextAxis = inArray.ndim +1 -1 # 0-origin
-    tShape = array(shape(inArray))
-    finalEls = floor(tShape[axis]/nInBin)
+    tShape = np.array(shape(inArray))
+    finalEls = np.floor(tShape[axis]/nInBin)
     maxInEls = finalEls * nInBin
 
     # define a slice to chop the desired axis so there are no partial bins
@@ -87,8 +87,8 @@ def binAvg(inArray, axis=0, nInBin=10):
     resizedInArray = inArray[newSlice]
 
     # reshape to get a new axis
-    tShape = array(shape(inArray))
-    newShape = hstack((tShape, nInBin))
+    tShape = np.array(shape(inArray))
+    newShape = np.hstack((tShape, nInBin))
     newShape[axis] = finalEls
 
     # take mean over the new axis
@@ -120,12 +120,12 @@ def findConsecutive(inVec, increment=0):
     returns: startNs, endNs
     """
 
-    inPrime = diff(inVec)
+    inPrime = np.diff(inVec)
     desIx = inPrime == increment
-    inPP = diff(hstack((0,desIx,0)))
+    inPP = np.diff(np.hstack((0,desIx,0)))
 
-    startNs = where(inPP == 1)[0]
-    endNs = where(inPP == -1)[0]
+    startNs = np.where(inPP == 1)[0]
+    endNs = np.where(inPP == -1)[0]
 
     return (startNs,endNs)
 
@@ -202,7 +202,7 @@ def smooth(x,window_len=10,window='hanning'):
     s=np.r_[2*x[0]-x[window_len:1:-1],x,2*x[-1]-x[-1:-window_len:-1]]
     #print(len(s))
     if window == 'flat': #moving average
-        w=ones(window_len,'d')
+        w=np.ones(window_len,'d')
     else:
         w=eval('np.'+window+'(window_len)')
 
@@ -210,7 +210,7 @@ def smooth(x,window_len=10,window='hanning'):
     return y[window_len-1:-window_len+1]
 
 
-def vec2padded(invec, startNs, endNs=None, pad=NaN, dtype=float64, matOffsets=None):
+def vec2padded(invec, startNs, endNs=None, pad=np.NaN, dtype='float64', matOffsets=None):
     """Convert vector to padded 2d array; ragged vectors allowed
 
     each span from startNs[i] to endNs[i] is a row of the output
@@ -258,7 +258,7 @@ def convertToFloat(listV):
 
     for i, tItem in enumerate(listV):
         try:
-            outA[i] = float(tItem)
+            outA[i] = np.float(tItem)
         except:
             outA[i] = np.NaN;  # failure to convert
 
