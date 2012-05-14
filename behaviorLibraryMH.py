@@ -5,6 +5,7 @@ import copy
 from xml.dom import minidom
 import string
 import operator
+import numpy as np
 import directoryConstants as dc; reload(dc)
 
 ################
@@ -17,6 +18,7 @@ rootGitPath = '_Users_holdanddetect_ExperimentXML-git';
 fullEName = ('%s_HoldAndDetectConstant_%s' %
              (rootGitPath, exptName))
 
+debug = 0 #1
 ################
 
 
@@ -59,7 +61,8 @@ class varDict:
 
     def getVariablesBySubject(self, subjNum, dateSpec=None, xmlName=None):
         """dateSpec: a string of form YYMMDD, 
-        calls _getVariablesFromXml file, updating the dict"""
+        calls _getVariablesFromXml file, updating the dict
+        xmlName can be a list"""
 
         ## get date specs from the on-disk directory
         allDateDirs = os.listdir(dataPath)
@@ -78,18 +81,28 @@ class varDict:
 
 
         ## find the xml filename for the given subject num
+        if isinstance(subjNum, str):
+            subjNumTxt = subjNum
+        else:
+            subjNumTxt = '%d' % subjNum
+
         if xmlName is None or xmlName == '':
             allNames = os.listdir(tDir)
-            matchList = [a for a in allNames if re.search('%d'%subjNum, a) is not None]
+            matchList = [a for a in allNames if re.search(subjNumTxt, a) is not None]
 
             if len(matchList) > 1:
-                print matchList
-                raise RuntimeError, 'More than one match found - look above and set xmlName'
+                mtimes = [os.stat(os.path.join(tDir,x)).st_mtime for x in matchList]
+                latestN = np.argmax(np.asarray(mtimes))
+                xmlDiskName = matchList[latestN]
+                if debug > 0:
+                    #print matchList
+                    print 'Choosing most recent xml file, date %6s: %8s' % (dateSpec, xmlDiskName)
+
             xmlDiskName = matchList[0]
         else:
             xmlDiskName = xmlName
 
-        if re.match('\.xml$', xmlDiskName) is None:
+        if re.search('\.xml$', xmlDiskName) is None:
             xmlDiskName = xmlDiskName + '.xml'
 
         fullXmlName = os.path.join(tDir, xmlDiskName)
@@ -145,13 +158,18 @@ def printChanges(changedD,oldD):
 
 ################
 
-def getAllDatesByXmlName(xmlFileName):
+def getAllDatesByXmlName(xmlFileNameList):
     """Returns: a list of strings giving all dates for this xmlname.
-    If xmlFileName is none, don't restrict by xml name"""
+    If xmlFileName is none, don't restrict by xml name.  
+    if xmlFileName is a list, match any"""
 
-    if xmlFileName is not None and xmlFileName[-3:].lower() != "xml":
-        xmlFileName = xmlFileName + '.xml'
+    if isinstance(xmlFileNameList, str):
+        xmlFileNameList = [xmlFileNameList]
 
+    for iX, xmlFileName in enumerate(xmlFileNameList):
+        if xmlFileName is not None and xmlFileName[-3:].lower() != "xml":
+            xmlFileNameList[iX] = xmlFileName + '.xml'
+        
     dirList = []
     for root, dirnames, filenames in os.walk(dataPath):
         # prune irrelevant dirs
@@ -161,8 +179,9 @@ def getAllDatesByXmlName(xmlFileName):
                 dirnames.remove(tL)
 
         if string.find(exptName, root):
-            if xmlFileName is None or xmlFileName in filenames:
+            if any( [x is not None and x in filenames for x in xmlFileNameList]):
                 dirList.append(root)
+
 
     rePat = '^.*MWVariables-backups/backup-after-sync-([0-9]*)/_Users_.*$'
     dateList = set()
@@ -172,6 +191,7 @@ def getAllDatesByXmlName(xmlFileName):
             dateList.update(tMatch.groups())
 
     dateList = sorted(dateList)
+
     return dateList
 
 
