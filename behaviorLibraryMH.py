@@ -158,7 +158,7 @@ def printChanges(changedD,oldD):
 
 ################
 
-def getAllDatesByXmlName(xmlFileNameList):
+def getAllDatesByXmlName(xmlFileNameList, doDetectSubjNumAndGetAll=True):
     """Returns: a list of strings giving all dates for this xmlname.
     If xmlFileName is none, don't restrict by xml name.  
     if xmlFileName is a list, match any"""
@@ -166,11 +166,16 @@ def getAllDatesByXmlName(xmlFileNameList):
     if isinstance(xmlFileNameList, str):
         xmlFileNameList = [xmlFileNameList]
 
+    if doDetectSubjNumAndGetAll:
+        b0=re.search('i([0-9]*)(\.xml)?', xmlFileNameList[0])
+        subjNum = int(b0.groups()[0])
+
     for iX, xmlFileName in enumerate(xmlFileNameList):
         if xmlFileName is not None and xmlFileName[-3:].lower() != "xml":
             xmlFileNameList[iX] = xmlFileName + '.xml'
         
     dirList = []
+
     for root, dirnames, filenames in os.walk(dataPath):
         # prune irrelevant dirs
         delList = [x for x in dirnames if (string.find(x,'_Users') == 0 and string.find(x,exptName)==-1)]
@@ -179,9 +184,12 @@ def getAllDatesByXmlName(xmlFileNameList):
                 dirnames.remove(tL)
 
         if string.find(exptName, root):
-            if any( [x is not None and x in filenames for x in xmlFileNameList]):
-                dirList.append(root)
-
+            if doDetectSubjNumAndGetAll:
+                if any([(re.search('[i0]%d'%subjNum, x) is not None) for x in filenames]):
+                    dirList.append(root)
+            else:
+                if any( [x is not None and x in filenames for x in xmlFileNameList]):
+                    dirList.append(root)
 
     rePat = '^.*MWVariables-backups/backup-after-sync-([0-9]*)/_Users_.*$'
     dateList = set()
