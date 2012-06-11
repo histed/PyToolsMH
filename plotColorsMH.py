@@ -7,17 +7,18 @@
 
 
 uniqueColorsD = dict()
-uniqueColorsD['matlabLike10'] = [
+uniqueColorsD['matlabLike11'] = [
     (0, 0, 1),      #Blue
     (1, 0, 0),      #Red
     (0.2, 1, 0.2),      #Green
-    (1, 1, 0),    #Yellow
+    (0.8, 0.8, 0),    #Yellow
     (1, 0, 1),    #Magenta
     (1, 0.5, 0.5),  #Pink
     (0.5, 0.5, 0.5),  #Gray
     (0.5, 0, 0),      #Brown
     (1, 0.5, 0),    #Orange
-    (1, 1, 1), # Black
+    (0, 0, 0), # Black
+    (1, 1, 1), # White
 ]
 uniqueColorsD['13'] = [ \
     '#007D34', #Vivid Green

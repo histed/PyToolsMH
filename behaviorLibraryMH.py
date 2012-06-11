@@ -5,6 +5,7 @@ import copy
 from xml.dom import minidom
 import string
 import operator
+import numpy as np
 import directoryConstants as dc; reload(dc)
 import numpy as np
 
@@ -18,6 +19,7 @@ rootGitPath = '_Users_holdanddetect_ExperimentXML-git';
 fullEName = ('%s_HoldAndDetectConstant_%s' %
              (rootGitPath, exptName))
 
+debug = 0 #1
 ################
 
 
@@ -62,7 +64,8 @@ class varDict:
 
     def getVariablesBySubject(self, subjNum, dateSpec=None, xmlName=None, debug=False):
         """dateSpec: a string of form YYMMDD, 
-        calls _getVariablesFromXml file, updating the dict"""
+        calls _getVariablesFromXml file, updating the dict
+        xmlName can be a list"""
 
         ## get date specs from the on-disk directory
         allDateDirs = os.listdir(dataPath)
@@ -81,8 +84,14 @@ class varDict:
 
 
         ## find the xml filename for the given subject num
+        if isinstance(subjNum, str):
+            subjNumTxt = subjNum
+        else:
+            subjNumTxt = '%d' % subjNum
+
         if xmlName is None or xmlName == '':
             allNames = os.listdir(tDir)
+
             matchList = [a for a in allNames if re.match(xmlFilenamePat(subjNum), a) is not None]
             if len(matchList) > 1:
                 mtimeL = [os.stat(os.path.join(tDir, x)).st_mtime for x in matchList]
@@ -156,13 +165,11 @@ def printChanges(changedD,oldD):
 
 ################
 
-
-
 def getAllDatesBySubjNum(subjNum):
     """Returns: a list of strings giving all dates for this subject"""
 
-
     dirList = []
+
     for root, dirnames, filenames in os.walk(dataPath):
         # prune irrelevant dirs
         delList = [x for x in dirnames if (string.find(x,'_Users') == 0 
@@ -190,6 +197,7 @@ def getAllDatesBySubjNum(subjNum):
             dateList.update(tMatch.groups())
 
     dateList = sorted(dateList)
+
     return dateList
 
 
