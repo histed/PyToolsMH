@@ -6,6 +6,7 @@ from xml.dom import minidom
 import string
 import operator
 import directoryConstants as dc; reload(dc)
+import numpy as np
 
 ################
 # constants
@@ -21,6 +22,8 @@ fullEName = ('%s_HoldAndDetectConstant_%s' %
 
 
 
+def xmlFilenamePat(subjNum):
+    return ('^i0*%s[-a-zA-Z0-9]*.xml$' % subjNum)
 
 class varDict:
     """To read vals from xml file: init with empty argument, then call getVariablesFromDisk"""
@@ -57,7 +60,7 @@ class varDict:
         self.xmlTypeDict = dict(zip(varNames, varTypes))        
         self.xmlFileName = inFileName
 
-    def getVariablesBySubject(self, subjNum, dateSpec=None, xmlName=None):
+    def getVariablesBySubject(self, subjNum, dateSpec=None, xmlName=None, debug=False):
         """dateSpec: a string of form YYMMDD, 
         calls _getVariablesFromXml file, updating the dict"""
 
@@ -80,19 +83,27 @@ class varDict:
         ## find the xml filename for the given subject num
         if xmlName is None or xmlName == '':
             allNames = os.listdir(tDir)
-            matchList = [a for a in allNames if re.search('%d'%subjNum, a) is not None]
-
+            matchList = [a for a in allNames if re.match(xmlFilenamePat(subjNum), a) is not None]
             if len(matchList) > 1:
-                print matchList
-                raise RuntimeError, 'More than one match found - look above and set xmlName'
-            xmlDiskName = matchList[0]
+                mtimeL = [os.stat(os.path.join(tDir, x)).st_mtime for x in matchList]
+                desN = np.argmax(mtimeL)  # choose most recent
+                xmlDiskName = matchList[desN]
+                if debug:
+                    print ("Found %d matches for date %s, choosing most recent: %s" 
+                           % (len(matchList), dateSpec, matchList[desN]))
+            elif len(matchList) == 1:
+                xmlDiskName = matchList[0]
+            else: 
+                raise RuntimeError, 'No matches?  bug'
         else:
             xmlDiskName = xmlName
 
-        if re.match('\.xml$', xmlDiskName) is None:
+        if re.match('.*\.xml$', xmlDiskName) is None:
             xmlDiskName = xmlDiskName + '.xml'
 
         fullXmlName = os.path.join(tDir, xmlDiskName)
+        if not os.path.exists(fullXmlName):
+            raise RuntimeError, 'bug'
 
         ## get the dict
         self._getVariablesFromXmlFile(fullXmlName)
@@ -145,26 +156,33 @@ def printChanges(changedD,oldD):
 
 ################
 
-def getAllDatesByXmlName(xmlFileName):
-    """Returns: a list of strings giving all dates for this xmlname.
-    If xmlFileName is none, don't restrict by xml name"""
 
-    if xmlFileName is not None and xmlFileName[-3:].lower() != "xml":
-        xmlFileName = xmlFileName + '.xml'
+
+def getAllDatesBySubjNum(subjNum):
+    """Returns: a list of strings giving all dates for this subject"""
+
 
     dirList = []
     for root, dirnames, filenames in os.walk(dataPath):
         # prune irrelevant dirs
-        delList = [x for x in dirnames if (string.find(x,'_Users') == 0 and string.find(x,exptName)==-1)]
+        delList = [x for x in dirnames if (string.find(x,'_Users') == 0 
+                                           and string.find(x,exptName)==-1)]
+        if root[-4:] == '/old':
+            continue
+
         if len(delList) > 0:
             for tL in delList:
                 dirnames.remove(tL)
 
         if string.find(exptName, root):
-            if xmlFileName is None or xmlFileName in filenames:
-                dirList.append(root)
+            mL = [re.match(xmlFilenamePat(subjNum), x) for x in filenames]
+            mIx = np.not_equal(mL, None)
+            if np.sum(mIx) > 0:
+                matchList = np.take(filenames, np.nonzero(mIx)[0])
+                if len(matchList) > 0:
+                    dirList.append(root)
 
-    rePat = '^.*MWVariables-backups/backup-after-sync-([0-9]*)/_Users_.*$'
+    rePat = '^.*MWVariables-backups/backup-after-sync-([0-9]*)/_Users_.*(?<!old)$'
     dateList = set()
     for tDir in dirList:
         tMatch = re.match(rePat, tDir)
