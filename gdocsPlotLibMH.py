@@ -27,7 +27,7 @@ def extractDataFromSheetAsFrame(titleStr, username, doReAuth=False):
 
     # convert these to float
     waterV = mMH.convertToFloat([b.custom['workingwater'].text for b in r.entry])
-    suppV = mMH.convertToFloat([b.custom['supplement'].text for b in r.entry])
+    suppV = mMH.convertToFloat([b.custom['extraworkingsupplement'].text for b in r.entry])
     weightV = mMH.convertToFloat([b.custom['weight'].text for b in r.entry])
     nCorrects = mMH.convertToFloat([b.custom['correct'].text for b in r.entry])
     nTrials = mMH.convertToFloat([b.custom['trials'].text for b in r.entry])
