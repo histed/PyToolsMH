@@ -33,6 +33,9 @@ def smooth_lowess(y, x=None, span=10, iter=3):
         raise ValueError, 'Input must have length > 1'
     
     nPts = len(y)
+
+    if span > (nPts-1):
+        span = nPts-1
     f = 1.0*span/nPts
 
     smY = Bio.Statistics.lowess.lowess(np.asarray(x,dtype='float'),

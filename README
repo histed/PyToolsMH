@@ -1,17 +1,18 @@
-A collection of utility code, mainly for behavioral control and analysis or neural data acquisition and analysis.
-
+collection of utility code
 Mark Histed
 mhisted@gmail.com
 
-----------------
-
-Some routines of interest:
-
-import mathMH
 mathMH.chop()   # rounds to a specified number of sig digits
 mathMH.smooth() # smoothing using filtering, e.g. with a Hamming window
 
 ----------------
+
+
+
+
+
+
+
 
 Install notes:
 
