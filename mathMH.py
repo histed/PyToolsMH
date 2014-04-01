@@ -54,9 +54,9 @@ def smooth_spline(y, x=None, knots=None, degree=3):
     return s(x)
 
 def chop(x, sig=2):
-    nSig = sig-(np.floor(np.log10(x)))-1
     if x == 0:
         return 0
+    nSig = sig-(np.floor(np.log10(x)))-1
     if np.size(x) == 1:
         x = [x]
         nSig = [nSig]
@@ -256,7 +256,7 @@ def vec2padded(invec, startNs, endNs=None, pad=np.NaN, dtype='float64', matOffse
     return outMat
 
 def convertToFloat(listV):
-    # deals with errors by substituting NaNs
+    """convert list to float; deals with errors by substituting NaNs"""
     outA = np.ones((len(listV),))*np.NaN
 
     for i, tItem in enumerate(listV):
@@ -267,3 +267,13 @@ def convertToFloat(listV):
 
     return(outA)
 
+def local_minima(fits, window=15):
+    """fm Zachary Pinkus"""
+    from scipy.ndimage import minimum_filter
+    fits = np.asarray(fits)
+    minfits = minimum_filter(fits, size=window, mode="wrap")
+    minima_mask = fits == minfits
+    good_indices = np.arange(len(fits))[minima_mask]
+    good_fits = fits[minima_mask]
+    order = good_fits.argsort()
+    return good_indices[order], good_fits[order] 

@@ -1,5 +1,6 @@
 import sys
 import warnings
+import msvcrt
 
 # todo: need to figure out best way to tell what system we're on.  sys.platform?
 
@@ -17,7 +18,8 @@ else:
 def kbhit():
     if sys.platform == 'darwin':
         warnings.warn('No getch() yet for darwin')
+        return False
     elif sys.platform =='win':
-        return msvcrt.getch()
+        return msvcrt.kbhit()
     
 
