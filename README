@@ -17,9 +17,11 @@ mathMH.smooth() # smoothing using filtering, e.g. with a Hamming window
 Install notes:
 
     # for developing (working directly in source dir):
+    # for Mac, doesn't work on Windows
     #   this adds the source dir path to site-packages/easy-install.pth
     sudo python setup.py develop  
 
-    # alternate: copies these files to site-packages
-    sudo python setup.py install
+    # alternate (for Win): copies these files to site-packages
+    # must rerun after every change to source files
+    sudo python setup.py install -f 
 
