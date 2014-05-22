@@ -32,6 +32,10 @@ class TeeStreams(object):
       for s in self._streamList:
          if s is not None:
             s.write(data)
+   def flush(self):
+      for s in self._streamList:
+         if s is not None:
+            s.flush()
 
 class TeeStreamsBlockable(TeeStreams):
    """Extends TeeStreams to allow blocking/unblocking streams (temporarily discarding their output)"""
