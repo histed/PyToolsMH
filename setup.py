@@ -17,7 +17,7 @@ setup(
     license = "none",
     keywords = "",
     url = "", 
-    py_modules=['behaviorLibraryMH', 'mathMH', 'windowsTimingMH', 'crossPlatformMH', 'filesStreamsMH'],
+    py_modules=['behaviorLibraryMH', 'mathMH', 'windowsTimingMH', 'macTimingMH', 'crossPlatformMH', 'filesStreamsMH'],
     #packages=['an_example_pypi_project', 'tests'],
     long_description=read('README'),
     classifiers=[
