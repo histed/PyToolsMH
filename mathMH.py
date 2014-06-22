@@ -54,8 +54,8 @@ def smooth_spline(y, x=None, knots=None, degree=3):
     return s(x)
 
 def chop(x, sig=2):
-    if x == 0:
-        return 0
+    if np.all(x == 0):
+        return x
     nSig = sig-(np.floor(np.log10(x)))-1
     if np.size(x) == 1:
         x = [x]
