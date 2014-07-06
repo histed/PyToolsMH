@@ -10,17 +10,20 @@ def read(fname):
 
 setup(
     name = "PytoolsMH",
-    version = "0.0.1",
+    version = "0.0.2",
     author = "Mark Histed",
     author_email = "mhisted@gmail.com",
     description = ("A miscellaneous set of python utilities, mainly for neural data analysis"),
     license = "none",
     keywords = "",
     url = "", 
-    py_modules=['behaviorLibraryMH', 'mathMH', 'windowsTimingMH', 'macTimingMH', 'crossPlatformMH', 'filesStreamsMH'],
+    py_modules=['behaviorLibraryMH', 'mathMH', 'windowsTimingMH', 'macTimingMH', 'crossPlatformMH', 'filesStreamsMH', 'plotMH'],
     #packages=['an_example_pypi_project', 'tests'],
     long_description=read('README'),
     classifiers=[
         "Development Status :: 3 - Alpha",
     ],
 )
+
+# 0.0.2: add plotMH
+# 0.0.1
