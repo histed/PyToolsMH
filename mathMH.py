@@ -53,14 +53,16 @@ def smooth_spline(y, x=None, knots=None, degree=3):
     s = scipy.interpolate.UnivariateSpline(x, y, w=None, bbox=[None,None], k=degree, s=knots)
     return s(x)
 
-def chop(x, sig=2):
-    if np.all(x == 0):
-        return x
+def chop(x0, sig=2):
+    zeroIx = np.array(x0)==0
+    x = np.array(x0)
+    x[zeroIx] = 1  # will unmask below
     nSig = sig-(np.floor(np.log10(x)))-1
     if np.size(x) == 1:
         x = [x]
         nSig = [nSig]
     chopped = np.array([np.around(x0,int(n0)) for (x0,n0) in zip(x,nSig)])
+    chopped[zeroIx] = 0
     return chopped
 
 ############### 
@@ -277,3 +279,36 @@ def local_minima(fits, window=15):
     good_fits = fits[minima_mask]
     order = good_fits.argsort()
     return good_indices[order], good_fits[order] 
+
+################
+
+# functions to estimate the correct number of bins in a histogram
+# See:
+# http://stats.stackexchange.com/questions/798/calculating-optimal-number-of-bins-in-a-histogram-for-n-where-n-ranges-from-30
+
+def nBinsFD(inArr):
+    """Freedman-Diaconis algorithm to find number of bins in a histogram
+    Returns: nBins (integer)"""
+    nBins = np.ptp(inArr) / (2* (np.percentile(gs,75)-np.percentile(gs,25)) * len(inArr)**(-1/3.0) )
+    return int(np.ceil(nBins))
+
+def nBinsSS(inArr):
+    """Shimazaki and Shinomoto algorithm to find number of bins in a histogram
+    Returns: nBins (integer)"""
+    # Shimazaki and Shinomoto Neural Comput 2007 http://176.32.89.45/~hideaki/res/histogram.html
+    N_MIN = 4   #Minimum number of bins (integer)
+                #N_MIN must be more than 1 (N_MIN > 1).
+    N_MAX = 50  #Maximum number of bins (integer)
+    N = np.arange(N_MIN,N_MAX) # #of Bins
+    D = np.ptp(inArr)/N    #Bin size vector
+    C = np.zeros(shape=(np.size(D),1))
+
+    #Computation of the cost function
+    for i in xrange(np.size(N)):
+        edges = np.linspace(np.min(inArr),np.max(inArr),N[i]+1) # Bin edges
+        ki = np.histogram(inArr,edges)[0] # Count # of events in bins
+        k = np.mean(ki) #Mean of event count
+        v = np.sum((ki-k)**2)/N[i] #Variance of event count
+        C[i] = (2*k-v)/((D[i])**2) #The cost Function
+    #Optimal Bin Size Selection
+    return N[np.argmin(C)]+1  # D[argmin(C)] is the optimal bin size, I believe

@@ -68,3 +68,14 @@ def add_scalebar(ax, matchx=True, matchy=True, hidex=True, hidey=True, fmtstrx='
     if hidey : ax.yaxis.set_visible(False)
  
     return sb
+
+################
+
+def newplotMH():
+    """Like MATLAB's newplot"""
+    if plt.gca().ishold() == True:
+        return (plt.gca().figure, plt.gca())
+    else:
+        figH = figure()
+        axH = axes()
+        return (figH, axH)
