@@ -54,6 +54,7 @@ def smooth_spline(y, x=None, knots=None, degree=3):
     return s(x)
 
 def chop(x0, sig=2):
+    x0 = np.atleast_1d(x0)
     zeroIx = np.array(x0)==0
     x = np.array(x0)
     x[zeroIx] = 1  # will unmask below
