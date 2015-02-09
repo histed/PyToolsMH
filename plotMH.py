@@ -1,3 +1,6 @@
+import contextlib
+import numpy as np
+
 # Originally from https://gist.github.com/dmeliza/3251476, 140706
 
 from matplotlib.offsetbox import AnchoredOffsetbox
@@ -79,3 +82,23 @@ def newplotMH():
         figH = figure()
         axH = axes()
         return (figH, axH)
+
+
+################
+
+# this is a numpy helper to prevent stripping zeros from the end of floats
+# http://stackoverflow.com/questions/2891790/pretty-printing-of-numpy-array
+
+# There's now a new way to do this, apparently: 
+#  np.set_printoptions(formatter={'float': '{: 0.3f}'.format})
+@contextlib.contextmanager
+def printoptions(strip_zeros=True, **kwargs):
+    origcall = np.core.arrayprint.FloatFormat.__call__
+    def __call__(self, x, strip_zeros=strip_zeros):
+        return origcall.__call__(self, x, strip_zeros)
+    np.core.arrayprint.FloatFormat.__call__ = __call__
+    original = np.get_printoptions()
+    np.set_printoptions(**kwargs)
+    yield 
+    np.set_printoptions(**original)
+    np.core.arrayprint.FloatFormat.__call__ = origcall
