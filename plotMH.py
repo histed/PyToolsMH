@@ -1,5 +1,8 @@
 import contextlib
 import numpy as np
+import statsmodels.api as sm # recommended import; only works for scikits >= 0.4
+
+
 
 # Originally from https://gist.github.com/dmeliza/3251476, 140706
 
@@ -102,3 +105,20 @@ def printoptions(strip_zeros=True, **kwargs):
     yield 
     np.set_printoptions(**original)
     np.core.arrayprint.FloatFormat.__call__ = origcall
+
+#################################################
+
+def cdfXY(inputV):
+    """compute empirical cdf from input vector.
+    Use:
+    (x,y) = cdfXY(inputV)
+    plt.step(x,y)
+
+    Note: for many X values / RV levels this can be inefficient - can add code to deal with that case
+    (instead of using every x value, subset using e.g. linspace() )
+    """
+    ecdf = sm.distributions.ECDF(inputV)
+    #x = np.linspace(min(inputV), max(inputV))
+    x = np.unique(inputV)
+    y = ecdf(x)
+    return  (x,y)
