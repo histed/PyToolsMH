@@ -4,7 +4,13 @@
 
 import numpy as np
 #from numpy import *
-import scipy.interpolate 
+import scipy.interpolate
+
+a_ = np.asarray
+
+
+
+
 
 # see also Savitsky-Golay
 #  I should add this code
@@ -16,15 +22,16 @@ import scipy.interpolate
 #           loess uses a 2-degree poly.
 #    See         http://www.mathworks.com/help/toolbox/curvefit/smooth.html
 
-# smooth with lowess:
-# from Bio.Statistics.lowess import lowess
-# lowess(x,y,f,iter)  f is in range [0..1]
-#   I believe the Biopython lowess uses a 1-degree polynomial
-#   code is  http://biopython.org/DIST/docs/api/Bio.Statistics.lowess-pysrc.html#lowess
 
+def smooth_lowess_biostat(y, x=None, span=10, iter=3):
+    """Uses Bio.statistics.  This is slow.
+    span is number of pts, as in matlab smooth.m"""
+    # smooth with lowess:
+    # from Bio.Statistics.lowess import lowess
+    # lowess(x,y,f,iter)  f is in range [0..1]
+    #   I believe the Biopython lowess uses a 1-degree polynomial
+    #   code is  http://biopython.org/DIST/docs/api/Bio.Statistics.lowess-pysrc.html#lowess
 
-
-def smooth_lowess(y, x=None, span=10, iter=3):
     import Bio.Statistics.lowess
     
     if x is None:
@@ -43,6 +50,32 @@ def smooth_lowess(y, x=None, span=10, iter=3):
                                        f,iter=iter)
 
     return smY
+
+
+def smooth_lowess(y, x=None, span=10, iter=3):
+    """Uses statsmodels.  As of around 2013, this is faster than Bio.statistics.  
+    span is number of pts, as in matlab smooth.m"""
+    
+    import statsmodels.nonparametric.api
+    
+    if x is None:
+        x = np.arange(len(y), dtype='float')
+    if len(y) < 2:
+        raise ValueError, 'Input must have length > 1'
+    
+    nPts = len(y)
+
+    if span > (nPts-1):
+        span = nPts-1
+    frac = 1.0*span/nPts
+
+    smY = statsmodels.nonparametric.api.lowess(a_(y, dtype='f8'),
+                                               a_(x,dtype='f8'),
+                                               frac,
+                                               it=iter,
+                                               missing='drop')
+
+    return smY[:,1]
 
 def smooth_spline(y, x=None, knots=None, degree=3):
     """knots is s in scipy.interpolate.UnivariateSpline"""
