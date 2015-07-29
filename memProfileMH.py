@@ -34,11 +34,16 @@ def memusage(inA):
         totSize += inA.nbytes
     elif hasattr(inA, 'todense') and hasattr(inA, 'data') and hasattr(inA.data, 'nbytes'): # likely sparse matrix
         totSize += inA.data.nbytes
-    elif type(inA) in [bool, float, int, type(None)]:
+    elif type(inA) in [bool, float, int, type(None), str]:
         pass # no extra memory for this object
     else:
         # brute force
-        bruteBytes = len(pickle.dumps(inA))
+        try:
+            bruteBytes = len(pickle.dumps(inA))
+        except TypeError:
+            # often "can't pickle XXX objects"
+            bruteBytes = 0
+            pass
         totSize += bruteBytes
         print ('Unknown: brute %d, getsizeof %d, type %s'
                % (bruteBytes, sys.getsizeof(inA), type(inA)))
