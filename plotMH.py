@@ -1,7 +1,7 @@
 import contextlib
 import numpy as np
 import statsmodels.api as sm # recommended import; only works for scikits >= 0.4
-
+import matplotlib.pyplot as plt
 
 
 # Originally from https://gist.github.com/dmeliza/3251476, 140706
@@ -107,6 +107,15 @@ def printoptions(strip_zeros=True, **kwargs):
     np.core.arrayprint.FloatFormat.__call__ = origcall
 
 #################################################
+
+def cdfplot(inputV):
+    """Plot empirical cdf of input vector.
+
+    Calls plotMH.cdfXY
+    """
+    (x,y) = cdfXY(inputV)
+    tH = plt.step(x,y)
+    return tH
 
 def cdfXY(inputV):
     """compute empirical cdf from input vector.
