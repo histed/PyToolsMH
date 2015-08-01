@@ -34,6 +34,9 @@ def memusage(inA):
         totSize += inA.nbytes
     elif hasattr(inA, 'todense') and hasattr(inA, 'data') and hasattr(inA.data, 'nbytes'): # likely sparse matrix
         totSize += inA.data.nbytes
+    elif hasattr(inA, 'todense') and hasattr(inA, 'alldata') and hasattr(inA.alldata, 'nbytes'):
+        # Brian: SparseConnectionMatrix: https://github.com/brian-team/brian/blob/master/brian/connections/connectionmatrix.py
+        totSize += inA.alldata.nbytes
     elif type(inA) in [bool, float, int, type(None), str]:
         pass # no extra memory for this object
     else:
@@ -48,6 +51,6 @@ def memusage(inA):
         print ('Unknown: brute %d, getsizeof %d, type %s'
                % (bruteBytes, sys.getsizeof(inA), type(inA)))
         if bruteBytes > 10000:
-            raise RuntimeError, 'Unknown type %s: edit this code' % type(inA)
+            raise RuntimeError, 'In brute force sizing: Unknown type %s and pickle size is large: edit this code' % type(inA)
 
     return totSize
