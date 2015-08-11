@@ -3,6 +3,8 @@ import numpy as np
 import statsmodels.api as sm # recommended import; only works for scikits >= 0.4
 import matplotlib.pyplot as plt
 
+r_ = np.r_
+a_ = np.asarray
 
 # Originally from https://gist.github.com/dmeliza/3251476, 140706
 
@@ -114,7 +116,11 @@ def cdfplot(inputV):
     Calls plotMH.cdfXY
     """
     (x,y) = cdfXY(inputV)
-    tH = plt.step(x,y)
+
+    xp = np.hstack((np.min(inputV),x,np.max(inputV)))
+    yp = np.hstack((0,y,1))
+    tH = plt.step(xp,yp)
+
     return tH
 
 def cdfXY(inputV):
