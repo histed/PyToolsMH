@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 import pickle
+import types
 
 def memusage(inA):
     """Recursively examines objects and determines the total memory usage they report.
@@ -26,19 +27,35 @@ def memusage(inA):
 
     totSize += sys.getsizeof(inA)  # real size for normal objects and base size for lists, tuples, dicts and nparrays
 
-    if type(inA) is tuple or type(inA) is list:
+    # TODO: this whole problem space is a mess.  Look at
+    # https://github.com/pympler/pympler/blob/master/pympler/asizeof.py
+    # for the lengths they go through to sort objects.  I should probably just patch asizeof() to support ndarrays and sparse arrays
+    
+    
+    # goal: anything that might contain something big (e.g. an array), we should break into pieces and do
+    # each piece separately.    e.g. instances may have np arrays as attributes, but functions/methods typically do not.
+    # So break down instances but not methods
+
+    # do checks in order of preference
+    if type(inA) in [bool, float, int, type(None), str, types.MethodType]:
+        pass # no extra memory for this object
+    elif type(inA) is tuple or type(inA) is list:
         totSize += np.sum([memusage(x) for x in inA])
     elif type(inA) is dict:
         totSize += np.sum([memusage(x) for x in inA.values()])
-    elif hasattr(inA, 'dtype') and hasattr(inA, 'nbytes') and type(inA.nbytes) is int: # likely numpy.ndarray
+    elif hasattr(inA, '__array_interface__') and hasattr(inA, 'nbytes') and type(inA.nbytes) is int:
+        # likely numpy.ndarray 
+        # we should be using the buffer protocol and memoryview() for this
         totSize += inA.nbytes
-    elif hasattr(inA, 'todense') and hasattr(inA, 'data') and hasattr(inA.data, 'nbytes'): # likely sparse matrix
+    elif hasattr(inA, '__array_priority__') and hasattr(inA.data, 'nbytes'): # likely sparse matrix
         totSize += inA.data.nbytes
-    elif hasattr(inA, 'todense') and hasattr(inA, 'alldata') and hasattr(inA.alldata, 'nbytes'):
-        # Brian: SparseConnectionMatrix: https://github.com/brian-team/brian/blob/master/brian/connections/connectionmatrix.py
-        totSize += inA.alldata.nbytes
-    elif type(inA) in [bool, float, int, type(None), str]:
-        pass # no extra memory for this object
+    elif hasattr(inA, '__array__'):
+        # supports the 'array interface', may be a subclass of ndarray, just re-call this function on the array itself
+        # pandas dataframes are these
+        totSize += memusage(inA.__array__())
+    elif type(inA) is types.InstanceType or isinstance(inA, object):
+        # is an instance - call memusage on each attribute, many will be methods, handled above
+        totSize += np.sum([memusage(getattr(inA,x)) for x in dir(inA)])
     else:
         # brute force
         try:
