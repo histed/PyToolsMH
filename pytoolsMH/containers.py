@@ -34,13 +34,14 @@ def issequence(x):
     #return isinstance(x, collections.Sequence)
 
 
-def lenorzero(x):
-    """Return an object's len, or 0 if it has no len (without raising an exception as normally happens)"""
+def lenorzero(x, noLenValue=0):
+    """Return an object's len, or a value (default 0) if it has no len (without raising an exception as normally happens)"""
     try:
         tLen = len(x)
     except TypeError:
-        tLen = 0
+        tLen = noLenValue
     return tLen
+
 
 def haslen(x):
     """Test if an object has a len()"""
