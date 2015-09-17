@@ -6,3 +6,5 @@ import memProfile
 import plotColors
 import plotting
 import string
+import dataio
+

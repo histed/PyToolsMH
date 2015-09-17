@@ -7,7 +7,7 @@ def read(fname):
 
 setup(
     name = "pytoolsMH",
-    version = "0.0.3",
+    version = "0.0.4",
     author = "Mark Histed",
     author_email = "mhisted@gmail.com",
     description = ("misc personal Python utilities"),
@@ -22,6 +22,7 @@ setup(
     ],
 )
 
+# 0.0.4: dataio
 # 0.0.3: convert to package
 # 0.0.2: add plotMH
 # 0.0.1

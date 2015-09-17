@@ -1,13 +1,15 @@
 
 
 def extractItems(dikt, keyTuple, ignoreMissing=False):
-    """Call as extractDictKeys(d, ("fieldname1", "f2") etc."""
-    # adapted from http://stackoverflow.com/questions/9433356/how-to-pass-members-of-a-dict-to-a-function to use a tuple; more similar to usual usage so easier to remember for me
+    """Extract a subset of a dictionary given a set of keys"""
+    # see http://stackoverflow.com/questions/9433356/how-to-pass-members-of-a-dict-to-a-function
+    # could also do { k:dikt[k] for k in dikt.keys() if k in keyTuple }
 
     if not ignoreMissing:
         return dict((k, dikt[k]) for k in keyTuple)
     else:
         return dict((k,dikt[k]) for k in keyTuple if dikt.has_key(k))
+        # could also do { k:dikt[k] for k in dikt.keys() if k in keyTuple } - could profile to check speed
 
 
 def issequence(x):
