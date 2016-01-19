@@ -346,3 +346,25 @@ def nBinsSS(inArr):
         C[i] = (2*k-v)/((D[i])**2) #The cost Function
     #Optimal Bin Size Selection
     return N[np.argmin(C)]+1  # D[argmin(C)] is the optimal bin size, I believe
+
+################
+# see http://stackoverflow.com/questions/2566412/find-nearest-value-in-numpy-array
+
+def find_idx_nearest_val(array, value):
+    """return an array's index whose value is nearest to @value"""
+    idx_sorted = np.argsort(array)
+    sorted_array = np.array(array[idx_sorted])
+    idx = np.searchsorted(sorted_array, value, side="left")
+    if idx >= len(array):
+        idx_nearest = idx_sorted[len(array)-1]
+        return idx_nearest
+    elif idx == 0:
+        idx_nearest = idx_sorted[0]
+        return idx_nearest
+    else:
+        if abs(value - sorted_array[idx-1]) < abs(value - sorted_array[idx]):
+            idx_nearest = idx_sorted[idx-1]
+            return idx_nearest
+        else:
+            idx_nearest = idx_sorted[idx]
+            return idx_nearest
