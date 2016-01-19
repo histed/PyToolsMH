@@ -3,7 +3,7 @@ import pandas as pd
 import tables
 from tables.nodes import filenode
 
-from future.utils import iteritems,iterkeys,itervalues
+from six import iteritems,iterkeys,itervalues
 import dill
 
 
@@ -16,7 +16,7 @@ def saveDataAsH5(fName, objSaveD):
     if fExt0 == '':
         fExt0 = '.h5'
     if not (fExt0 =='.h5'):
-        raise RuntimeError, 'only .h5 extension is allowed on save file'
+        raise RuntimeError('only .h5 extension is allowed on save file')
     fName= fName0+fExt0
 
     # move any existing old file to trash

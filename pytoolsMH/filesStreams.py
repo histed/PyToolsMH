@@ -45,11 +45,11 @@ class TeeStreamsBlockable(TeeStreams):
       self._streamListOrig = copy.copy(self._streamList)
    def blockStream(self, streamN):
       if streamN < 0 or streamN >= len(self._streamList):
-         raise RuntimeError, ('Unknown stream number %d' % streamN)
+         raise RuntimeError('Unknown stream number %d' % streamN)
       self._streamList[streamN] = None
    def unblockStream(self, streamN):
       if streamN < 0 or streamN >= len(self._streamList):
-         raise RuntimeError, ('Unknown stream number %d' % streamN)
+         raise RuntimeError('Unknown stream number %d' % streamN)
       self._streamList[streamN] = self._streamListOrig[streamN]
 
 

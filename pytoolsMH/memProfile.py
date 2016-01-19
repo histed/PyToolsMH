@@ -68,6 +68,6 @@ def memusage(inA):
         print ('Unknown: brute %d, getsizeof %d, type %s'
                % (bruteBytes, sys.getsizeof(inA), type(inA)))
         if bruteBytes > 10000:
-            raise RuntimeError, 'In brute force sizing: Unknown type %s and pickle size is large: edit this code' % type(inA)
+            raise RuntimeError('In brute force sizing: Unknown type %s and pickle size is large: edit this code' % type(inA))
 
     return totSize

@@ -37,7 +37,7 @@ def smooth_lowess_biostat(y, x=None, span=10, iter=3):
     if x is None:
         x = np.arange(len(y), dtype='float')
     if len(y) < 2:
-        raise ValueError, 'Input must have length > 1'
+        raise ValueError('Input must have length > 1')
     
     nPts = len(y)
 
@@ -61,7 +61,7 @@ def smooth_lowess(y, x=None, span=10, iter=3):
     if x is None:
         x = np.arange(len(y), dtype='float')
     if len(y) < 2:
-        raise ValueError, 'Input must have length > 1'
+        raise ValueError('Input must have length > 1')
     
     nPts = len(y)
 
@@ -82,7 +82,7 @@ def smooth_spline(y, x=None, knots=None, degree=3):
     if x is None:
         x = np.arange(len(y))
     if len(y) < 2:
-        raise ValueError, 'Input must have length > 1'
+        raise ValueError('Input must have length > 1')
     s = scipy.interpolate.UnivariateSpline(x, y, w=None, bbox=[None,None], k=degree, s=knots)
     return s(x)
 
@@ -224,10 +224,10 @@ def smooth(x,window_len=10,window='hanning'):
     """
 
     if x.ndim != 1:
-        raise ValueError, "smooth only accepts 1 dimension arrays."
+        raise ValueError("smooth only accepts 1 dimension arrays.")
 
     if x.size < window_len:
-        raise ValueError, "Input vector needs to be bigger than window size."
+        raise ValueError("Input vector needs to be bigger than window size.")
 
 
     if window_len<3:
@@ -235,7 +235,7 @@ def smooth(x,window_len=10,window='hanning'):
 
 
     if not window in ['flat', 'hanning', 'hamming', 'bartlett', 'blackman']:
-        raise ValueError, "Window is on of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'"
+        raise ValueError("Window is on of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'")
 
 
     s=np.r_[2*x[0]-x[window_len:1:-1],x,2*x[-1]-x[-1:-window_len:-1]]
@@ -271,16 +271,16 @@ def vec2padded(invec, startNs, endNs=None, pad=np.NaN, dtype='float64', matOffse
 
     # error checking
     if any(startNs<0) or any(endNs>len(invec)):
-        raise ValueError, 'indices range outside of vector'
+        raise ValueError('indices range outside of vector')
     if any(endNs-startNs <= 0):
-        raise ValueError, 'some ends below start'
+        raise ValueError('some ends below start')
 
 
     # allocate outmat
     nCols = (endNs-startNs).max()
     nRows = len(startNs)
     if nRows != len(endNs):
-        raise ValueError, 'start and end must match'
+        raise ValueError('start and end must match')
     outMat = pad + np.zeros((nRows,nCols), dtype=dtype, order='C')
 
     # there has to be a faster way to use this with list comprehensions

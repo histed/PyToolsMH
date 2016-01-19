@@ -5,7 +5,7 @@ def str2bool_onlyknown(v):
     elif v.lower() in ("no", "false", "f", "0"):
         oV = False
     else:
-        raise ValueError, 'Unknown: %s' % v
+        raise ValueError('Unknown: %s' % v)
     return oV
 
 

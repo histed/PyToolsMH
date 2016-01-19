@@ -22,7 +22,7 @@ def kbhit():
     elif sys.platform == 'win32':
         return msvcrt.kbhit()
     else:
-        raise RuntimeError, 'Unknown platform: bug'
+        raise RuntimeError('Unknown platform: bug')
     
 
 def getch():
@@ -33,4 +33,4 @@ def getch():
     elif sys.platform == 'win32':
         return msvcrt.getch()
     else:
-        raise RuntimeError, 'Unknown platform: bug'
+        raise RuntimeError('Unknown platform: bug')
