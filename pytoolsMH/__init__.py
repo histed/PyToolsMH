@@ -4,7 +4,12 @@ from . import filesStreams
 from . import math
 from . import memProfile
 from . import plotColors
-from . import plotting
 from . import string
-from . import dataio
+
+# note: requires statsmodels and pandas
+try:
+    from . import plotting
+    from . import dataio
+except ImportError:
+    print "Modules missing, not loading plotting, dataio - needs fixing"
 
