@@ -137,3 +137,16 @@ def cdfXY(inputV):
     x = np.unique(inputV)
     y = ecdf(x)
     return  (x,y)
+
+################
+# small plotting style functions
+
+def setAxFontSizes(text_pts=7, ticklabel_pts=6, axH=None):
+    """quickly rescale font sizes on axes, e.g. to prepare for print"""
+    if axH is None:
+        axH = plt.gca()
+    for tA in [axH.title, axH.xaxis.label, axH.yaxis.label]:
+        tA.set_fontsize(text_pts)
+    for tA in axH.get_xticklabels()+axH.get_yticklabels():
+        tA.set_fontsize(ticklabel_pts)
+    
