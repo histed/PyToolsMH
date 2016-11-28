@@ -40,10 +40,10 @@ def readDataFromH5(fName):
     """Return data from file as a dictionary.  """
     initD = {}
     with pd.HDFStore(fName) as store:
-        pdNames = [k[1:] for k in store.keys()]  # remove leading slash
+        pdNames = [k[1:] for k in list(store.keys())]  # remove leading slash
         for tP in pdNames:
             initD[tP] = store[tP] 
-        pklNames = store._handle.root.objects._v_leaves.keys()
+        pklNames = list(store._handle.root.objects._v_leaves.keys())
         for tP in pklNames:
             initD[tP] = dill.loads(getattr(store._handle.root.objects, tP)[:])
     return initD

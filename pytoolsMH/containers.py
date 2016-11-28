@@ -8,7 +8,7 @@ def extractItems(dikt, keyTuple, ignoreMissing=False):
     if not ignoreMissing:
         return dict((k, dikt[k]) for k in keyTuple)
     else:
-        return dict((k,dikt[k]) for k in keyTuple if dikt.has_key(k))
+        return dict((k,dikt[k]) for k in keyTuple if k in dikt)
         # could also do { k:dikt[k] for k in dikt.keys() if k in keyTuple } - could profile to check speed
 
 

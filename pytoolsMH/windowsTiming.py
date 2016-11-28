@@ -39,17 +39,17 @@ def timerTest(resolution, duration):
 debugLevel = 0
 
 if debugLevel > 0:
-    print timerTest(0.001, 3)
+    print(timerTest(0.001, 3))
 
     timeBeginPeriod(caps.wPeriodMin)
-    print timerTest(0.001, 3)
+    print(timerTest(0.001, 3))
     timeEndPeriod(caps.wPeriodMin)
 
     timeBeginPeriod(10)
-    print timerTest(0.001, 3)
+    print(timerTest(0.001, 3))
     timeEndPeriod(10)
 
     timeBeginPeriod(caps.wPeriodMax)
-    print timerTest(0.001, 3)
+    print(timerTest(0.001, 3))
     timeEndPeriod(caps.wPeriodMax)
 

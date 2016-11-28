@@ -6,8 +6,11 @@ from xml.dom import minidom
 import string
 import operator
 import numpy as np
-import directoryConstants as dc; reload(dc)
-import numpy as np
+import imp
+
+from . import directoryConstants as dc; imp.reload(dc)
+
+
 
 ################
 # constants
@@ -40,13 +43,13 @@ class varDict:
     def printVarDict(self):
         """format it nicely and print it"""
 
-        sortDict = sorted(self.dict.items(), key=operator.itemgetter(0))
+        sortDict = sorted(list(self.dict.items()), key=operator.itemgetter(0))
 
         if self.xmlFileName is not None:
-            print '** %s' % self.xmlFileName
+            print('** %s' % self.xmlFileName)
 
         for (varName, val) in sortDict:
-            print '  %-35s: %7s' % (varName, val)
+            print('  %-35s: %7s' % (varName, val))
     
     def _getVariablesFromXmlFile(self, inFileName):
         """overwrites any current value in the dict"""
@@ -75,9 +78,9 @@ class varDict:
         else:
             dMatchList = [a for a in allDateDirs if re.search(dateSpec, a) is not None]
             if len(dMatchList) == 0:
-                raise RuntimeError, 'Data for date %s not found' % dateSpec
+                raise RuntimeError('Data for date %s not found' % dateSpec)
             elif len(dMatchList) > 1: 
-                raise RuntimeError, 'More than one variable match for date - bug?'
+                raise RuntimeError('More than one variable match for date - bug?')
             else:
                 tDir = os.path.join(dataPath, dMatchList[0], fullEName, 'Saved Variables')
 
@@ -98,12 +101,12 @@ class varDict:
                 desN = np.argmax(mtimeL)  # choose most recent
                 xmlDiskName = matchList[desN]
                 if debug:
-                    print ("Found %d matches for date %s, choosing most recent: %s" 
-                           % (len(matchList), dateSpec, matchList[desN]))
+                    print(("Found %d matches for date %s, choosing most recent: %s" 
+                           % (len(matchList), dateSpec, matchList[desN])))
             elif len(matchList) == 1:
                 xmlDiskName = matchList[0]
             else: 
-                raise RuntimeError, 'No matches?  bug'
+                raise RuntimeError('No matches?  bug')
         else:
             xmlDiskName = xmlName
 
@@ -112,7 +115,7 @@ class varDict:
 
         fullXmlName = os.path.join(tDir, xmlDiskName)
         if not os.path.exists(fullXmlName):
-            raise RuntimeError, 'bug'
+            raise RuntimeError('bug')
 
         ## get the dict
         self._getVariablesFromXmlFile(fullXmlName)
@@ -136,8 +139,8 @@ def diffXmlTwoDates(subjNum, dateSpecBefore, dateSpecFinal=None, xmlName=None):
     changedD = varDict()
     oldD = varDict()
     
-    for (tK,tVal) in vD2.dict.iteritems():
-        if not vD1.dict.has_key(tK):
+    for (tK,tVal) in vD2.dict.items():
+        if tK not in vD1.dict:
             initVal = None
         elif vD1.dict[tK] != tVal:
             initVal = vD1.dict[tK]
@@ -155,12 +158,12 @@ def printChanges(changedD,oldD):
     
     #print changedD.dict
     #print oldD.dict
-    sortOrig = sorted(copy.copy(changedD.dict).items(), key=operator.itemgetter(0))
+    sortOrig = sorted(list(copy.copy(changedD.dict).items()), key=operator.itemgetter(0))
 
     #print '** %s to %s'  % (oldD.xmlFileName, changedD.xmlFileName)
 
     for (varName, val) in sortOrig:
-        print '  %-35s: %7s -> %7s' % (varName, oldD.dict[varName], val)
+        print('  %-35s: %7s -> %7s' % (varName, oldD.dict[varName], val))
 
 
 ################

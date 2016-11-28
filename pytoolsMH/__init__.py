@@ -11,5 +11,5 @@ try:
     from . import plotting
     from . import dataio
 except ImportError:
-    print "Modules missing, not loading plotting, dataio - needs fixing"
+    print("Modules missing, not loading plotting, dataio - needs fixing")
 

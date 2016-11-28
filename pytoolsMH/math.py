@@ -338,7 +338,7 @@ def nBinsSS(inArr):
     C = np.zeros(shape=(np.size(D),1))
 
     #Computation of the cost function
-    for i in xrange(np.size(N)):
+    for i in range(np.size(N)):
         edges = np.linspace(np.min(inArr),np.max(inArr),N[i]+1) # Bin edges
         ki = np.histogram(inArr,edges)[0] # Count # of events in bins
         k = np.mean(ki) #Mean of event count
