@@ -6,10 +6,15 @@ from . import memProfile
 from . import plotColors
 from . import string
 
-# note: requires statsmodels and pandas
+## This module uses anaconda, and so assumes numpy, scipy etc are installed.
+
+# Don't load some modules if dependencies are missing
 try:
     from . import plotting
+except ImportError:
+    print("Modules missing.  Is statsmodels installed?  Not loading plotting")
+
+try:
     from . import dataio
 except ImportError:
-    print("Modules missing, not loading plotting, dataio - needs fixing")
-
+    print("Modules missing.  Is pandas installed?  Not loading dataio")
