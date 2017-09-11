@@ -5,32 +5,38 @@ import matplotlib.pyplot as plt
 
 r_ = np.r_
 a_ = np.asarray
-
-# Originally from https://gist.github.com/dmeliza/3251476, 140706
+# 170905: MH: 
+# 140706: Originally from https://gist.github.com/dmeliza/3251476,
 
 from matplotlib.offsetbox import AnchoredOffsetbox
 class AnchoredScaleBar(AnchoredOffsetbox):
+    """Draw a scalebar with labels on an axis."""
+
     def __init__(self, transform, sizex=0, sizey=0, labelx=None, labely=None, loc=4,
-                 pad=0.1, borderpad=0.1, sep=2, prop=None, **kwargs):
+                 pad=0.1, borderpad=0.1, sep=2, linewidth=3, prop=None, **kwargs):
         """
-        Draw a horizontal and/or vertical  bar with the size in data coordinate
-        of the give axes. A label will be drawn underneath (center-aligned).
- 
-        - transform : the coordinate frame (typically axes.transData)
-        - sizex,sizey : width of x,y bar, in data units. 0 to omit
-        - labelx,labely : labels for x,y bars; None to omit
-        - loc : position in containing axes
-        - pad, borderpad : padding, in fraction of the legend font size (or prop)
-        - sep : separation between labels and bars in points.
-        - **kwargs : additional arguments passed to base class constructor
+        Args:
+            - transform : the coordinate frame (typically axes.transData)
+            - sizex,sizey : width of x,y bar, in data units. 0 to omit
+            - labelx,labely : labels for x,y bars; None to omit
+            - loc : position in containing axes
+            - pad, borderpad : padding, in fraction of the legend font size (or prop)
+            - sep : separation between labels and bars in points.
+            - **kwargs : additional arguments passed to base class constructor
         """
+
         from matplotlib.patches import Rectangle
+        from matplotlib.lines import Line2D
         from matplotlib.offsetbox import AuxTransformBox, VPacker, HPacker, TextArea, DrawingArea
         bars = AuxTransformBox(transform)
+
         if sizex:
-            bars.add_artist(Rectangle((0,0), sizex, 0, fc="none"))
+            bars.add_artist(Line2D((0,sizex),(0,0), lw=linewidth,
+                                   color='k', solid_capstyle='butt'))
         if sizey:
-            bars.add_artist(Rectangle((0,0), 0, sizey, fc="none"))
+            bars.add_artist(Line2D((0,0),(0,sizey), lw=linewidth,
+                                   color='k', solid_capstyle='butt'))
+
  
         if sizex and labelx:
             bars = VPacker(children=[bars, TextArea(labelx, minimumdescent=False)],
