@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import tables
+import warnings
 from tables.nodes import filenode
 
 from six import iteritems,iterkeys,itervalues
@@ -18,6 +19,11 @@ def saveDataAsH5(fName, objSaveD):
     if not (fExt0 =='.h5'):
         raise RuntimeError('only .h5 extension is allowed on save file')
     fName= fName0+fExt0
+
+    # this warning happens in pytables when close is called on a closed file: safe to ignore
+    # avoid catch_warnings context manager: is not thread safe and makes for ugly extra indents
+    warnings.filterwarnings('ignore', 'host PyTables file is already closed')
+
 
     # move any existing old file to trash
     if os.path.exists(fName):
