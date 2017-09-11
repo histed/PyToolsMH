@@ -351,7 +351,17 @@ def nBinsSS(inArr):
 # see http://stackoverflow.com/questions/2566412/find-nearest-value-in-numpy-array
 
 def find_idx_nearest_val(array, value):
-    """return an array's index whose value is nearest to @value"""
+    """Return index of vector's closest value to the one specified.
+
+    Args:
+        array: input vector
+        value: to search for
+
+    Returns: nearest_index (integer)
+
+    Todo:
+        check: does this work only with vectors?  or multi-dim arrays?
+    """
     idx_sorted = np.argsort(array)
     sorted_array = np.array(array[idx_sorted])
     idx = np.searchsorted(sorted_array, value, side="left")
