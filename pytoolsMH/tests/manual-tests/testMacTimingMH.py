@@ -3,7 +3,7 @@ import time
 import timeit
 import numpy as np
 reload(mt)
-
+lksdjf
 print mt.getCpuFreq()
 mt.setRealtime(True)
 
