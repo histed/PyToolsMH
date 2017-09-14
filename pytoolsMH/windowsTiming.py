@@ -1,9 +1,12 @@
+
 # histed 120724
 #
 # mostly copied from pyglet:
 #   http://code.google.com/p/pyglet/issues/attachmentText?id=445&aid=-2288975315691413876&name=windowstimer.py&token=68bf0416226af9080cf91ec9aa168356
 
 import time
+import psutil
+import os
 
 from ctypes import *
 from ctypes.wintypes import DWORD
@@ -32,6 +35,15 @@ def timerTest(resolution, duration):
         count += 1
         now = time.clock()
     return 1.0*duration/count*1000 # resolution, ms
+
+def set_priority_high():
+    p = psutil.Process(os.getpid())
+    p.nice(psutil.HIGH_PRIORITY_CLASS)
+
+def set_priority_high():
+    p = psutil.Process(os.getpid())
+    p.nice(psutil.REALTIME_PRIORITY_CLASS)
+
 
 ################################################################
 # testing below
