@@ -33,7 +33,7 @@ class TIMECAPS(Structure):
 caps = TIMECAPS()
 timeGetDevCaps(byref(caps), sizeof(caps))
 
-windll.winmdef timerTest(resolution, duration):
+def timerTest(resolution, duration):
     start = time.clock()
     end = start + duration
     now = start
