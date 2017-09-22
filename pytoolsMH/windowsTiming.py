@@ -48,7 +48,7 @@ def set_priority_high():
     p = psutil.Process(os.getpid())
     p.nice(psutil.HIGH_PRIORITY_CLASS)
 
-def set_priority_high():
+def set_priority_realtime():
     p = psutil.Process(os.getpid())
     p.nice(psutil.REALTIME_PRIORITY_CLASS)
 
