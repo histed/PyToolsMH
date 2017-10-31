@@ -5,6 +5,7 @@ from . import math
 from . import memProfile
 from . import plotColors
 from . import string
+from . import image
 
 ## This module uses anaconda, and so assumes numpy, scipy etc are installed.
 
