@@ -1,5 +1,6 @@
 import os
 from setuptools import setup
+execfile('pytoolsMH/_version.py')  # read __version__
 
 # Utility function to read the README file.  Used for the long_description.  better to use the file than to put a raw string in below ...
 def read(fname):
@@ -7,7 +8,7 @@ def read(fname):
 
 setup(
     name = "pytoolsMH",
-    version = "0.0.4",
+    version = __version__,
     author = "Mark Histed",
     author_email = "mhisted@gmail.com",
     description = ("misc personal Python utilities"),
