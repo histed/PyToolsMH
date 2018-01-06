@@ -1,6 +1,5 @@
 import os
 from setuptools import setup
-import runpy
 # read __version__
 filename = 'pytoolsMH/_version.py'; exec(compile(open(filename, "rb").read(), filename, 'exec'), globals(), locals())
 
