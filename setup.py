@@ -1,6 +1,8 @@
 import os
 from setuptools import setup
-execfile('pytoolsMH/_version.py')  # read __version__
+import runpy
+# read __version__
+filename = 'pytoolsMH/_version.py'; exec(compile(open(filename, "rb").read(), filename, 'exec'), globals(), locals())
 
 # Utility function to read the README file.  Used for the long_description.  better to use the file than to put a raw string in below ...
 def read(fname):
