@@ -1,8 +1,10 @@
 import contextlib
 import numpy as np
-import statsmodels.api as sm # recommended import; only works for scikits >= 0.4
+import warnings
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore") # 180109: block FutureWarning. Can delete this in future.  see https://github.com/statsmodels/statsmodels/issues/3868
+    import statsmodels.api as sm # recommended import; only works for scikits >= 0.4
 import matplotlib.pyplot as plt
-import matplotlib
 
 r_ = np.r_
 a_ = np.asarray
