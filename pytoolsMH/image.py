@@ -7,7 +7,12 @@ from __future__ import print_function
 
 import skimage.io as io
 from skimage import transform
+from skimage import feature
 import numpy as np
+import pandas as pd
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from skimage.external import tifffile
 
 a_ = np.asarray
 r_ = np.r_
@@ -42,7 +47,7 @@ def align_stack(im, alignNs=r_[0:100], print_status=True, do_plot=False):
     aligntarg = im[:100,:,:].mean(axis=0)
     tL = []
     nfrdo = im.shape[0]
-    if print_status: print('Computing offsets... ', end='')
+    if print_status: print('Computing offsets ({} frames)... '.format(nfrdo), end='')
     for iF in range(nfrdo):  
         tL.append(feature.register_translation(aligntarg, im[iF,:,:]))
 
@@ -64,15 +69,26 @@ def align_stack(im, alignNs=r_[0:100], print_status=True, do_plot=False):
         plt.legend(['col','row'])
 
     # do the shifts
-    regim = im*0
+    regim = im.copy()*0
+    maxv = im.max()
     if print_status: print('Aligning frames... ', end='')
     for iF in range(nfrdo): #debug range(nframes):
-        regim[iF,:,:] = transform.warp(im[iF,:,:], \
-                    transform.SimilarityTransform(translation=(-1*regDf.col[iF],-regDf.row[iF])))
+        regim[iF,:,:] = transform.warp(im[iF,:,:]*1.0/maxv, \
+                    transform.SimilarityTransform(translation=(-1*regDf.col[iF],-regDf.row[iF]))) * maxv
+        t = transform.warp(im[iF,:,:]*1.0/maxv, \
+                    transform.SimilarityTransform(translation=(-1*regDf.col[iF],-regDf.row[iF]))) * maxv
         if print_status and iF % 500 == 0:
             print('%d (%d,%d)'%(iF,-regDf.col[iF],-regDf.row[iF]), end=' ')
     if print_status: print('Done.')
 
     return regim
 
-        
+
+
+
+def write_tiff_stack(im, outname):
+        """Write a 3d image into a tiff stack on disk
+        Stack dims: [nFrames, nY, nX] """
+        with tifffile.TiffWriter(outname, imagej=True) as stack:
+            for iF in range(im.shape[0]):
+                stack.save(im[iF,:,:], photometric='minisblack')
