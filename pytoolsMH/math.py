@@ -1,26 +1,67 @@
 ## math, vector and numpy related tools.  Includes: chop, smooth.  Not completely tested.
 #
+#  TODO
+#    Add tests, esp for smooth and related.  180501
+#
 # histed imported 120309
+#
+
 
 import numpy as np
-#from numpy import *
 import scipy.interpolate
+import scipy.signal as ss
 
 a_ = np.asarray
 
 
 
 
+def smooth(y, x=None, span=None, method='lowess', axis=-1, **kwArgs):
+    """Smooth a signal or timeseries.  Master function for smoothing that can use different smoothing methods.
 
-# see also Savitsky-Golay
-#  I should add this code
-#http://www.scipy.org/Cookbook/SavitzkyGolay
-# for SG and lowess comparison see:
-#http://homepages.ihug.co.nz/~deblight/AUTResearch/papers/Black_Art_Smoothing.pdf
+    Arguments:
+        method: str ('lowess' (default), 'sgolay', 'moving') type of smoother.
+           lowess: extra args: robust
+           sgolay: polyorder default is 2, see args: mode, cval, delta, etc.
+        span: number of points, or percentage of data, to use as basic smoothing unit
+        y: data to smooth
+        x: vector of len y.shape[axis], x points / indep var for data
 
-#  In matlab, lowess uses a 1-degree polynomial model
-#           loess uses a 2-degree poly.
-#    See         http://www.mathworks.com/help/toolbox/curvefit/smooth.html
+    """
+    # for SG and lowess comparison see:
+    # http://homepages.ihug.co.nz/~deblight/AUTResearch/papers/Black_Art_Smoothing.pdf
+
+    y = np.asarray(y)
+    npts = y.shape[axis]
+    if x is None:
+        x = np.arange(npts)  # evenly spaced 0..npts
+    print(len(x),len(y))
+
+    if method == 'lowess':
+        return smooth_lowess(y, x, span=span, axis=axis, **kwArgs)
+    elif method == 'rlowess':  # shortcut for matlab compatibility
+        return smooth_lowess(y, x, span=span, axis=axis, robust=True, **kwArgs)
+    elif method == 'sgolay':
+        if span < 1:
+            span = span*np.shape(y)[axis]  # convert pct to number of pts
+        if len(np.unique(np.diff(x))) > 1:
+            raise RuntimeError('Cannot pass x with different stepsizes to sgolay')
+        if not 'polyorder' in kwArgs:  # not present, set default 2
+            kwArgs['polyorder'] = 2
+        if 'degree' in kwArgs:  # compat with matlab
+            kwArgs['polyorder'] = kwargs['degree']
+        return ss.savgol_filter(y, window_length=int(span), axis=axis, **kwArgs)
+    elif method == 'moving':
+        if len(np.unique(np.diff(x))) > 1:
+            raise RuntimeError('Cannot pass x with different stepsizes to moving')
+        return smooth_filter(y, window_len=int(span), window='flat', axis=axis)
+
+
+
+
+
+
+
 
 
 def smooth_lowess_biostat(y, x=None, span=10, iter=3):
@@ -52,30 +93,56 @@ def smooth_lowess_biostat(y, x=None, span=10, iter=3):
     return smY
 
 
-def smooth_lowess(y, x=None, span=10, iter=3):
-    """Uses statsmodels.  As of around 2013, this is faster than Bio.statistics.  
-    span is number of pts, as in matlab smooth.m"""
+
+
+def smooth_lowess(y, x=None, span=10, robust=False, iter=None, axis=-1):
+    """Uses statsmodels.  As of around 2013, this is faster than Bio.statistics.
+    Args:
+        y: ndarray, can be 2d  (or maybe N-d - needs testing)
+        x: None (default) or 1d ndarray, same length as specified axis of y.  If None, use 1:len(y)
+        robust: bool, default False.  Whether to reweight to reduce influence of outliers, see docs
+        span: number of pts, or percent of total number of points, as in matlab smooth.m
+        axis: the axis to smooth over.  """
     
     import statsmodels.nonparametric.api
-    
+
+    if iter is not None:
+        raise RuntimeError('iter no longer used: use robust param instead')
+
+    y = a_(y, dtype='f8')
+    nPts = y.shape[axis]
+
     if x is None:
-        x = np.arange(len(y), dtype='float')
+        x = np.arange(nPts, dtype='float')
+    else:
+        x = a_(x, dtype='f8')
     if len(y) < 2:
         raise ValueError('Input must have length > 1')
-    
-    nPts = len(y)
+
+    assert (np.all(np.diff(x)>0)), 'x must be strictly increasing'  # or output will be all nans
 
     if span > (nPts-1):
         span = nPts-1
-    frac = 1.0*span/nPts
+    if span < 1:
+        frac = span  # percent
+    else:
+        frac = 1.0*span/nPts  # is number of points, convert to span
 
-    smY = statsmodels.nonparametric.api.lowess(a_(y, dtype='f8'),
-                                               a_(x,dtype='f8'),
-                                               frac,
-                                               it=iter,
-                                               missing='drop')
+    if robust:
+        iter = 5
+    else:
+        iter = 1
 
-    return smY[:,1]
+    delta = np.min((0.01 * np.ptp(x), span/5))  # hardcode.  first is suggestion in docs
+
+    # iterate over the specified axis.  Note we need a func because lowess() returns a tuple
+    def runonvec(y,x,frac,iter,delta):
+        return statsmodels.nonparametric.api.lowess(y,x,
+                                                    frac, it=iter, delta=delta, missing='drop')[:,1]
+    smY = np.apply_along_axis(runonvec, axis, y, x, frac, iter, delta)
+
+    return smY
+
 
 def smooth_spline(y, x=None, knots=None, degree=3):
     """knots is s in scipy.interpolate.UnivariateSpline"""
@@ -85,6 +152,7 @@ def smooth_spline(y, x=None, knots=None, degree=3):
         raise ValueError('Input must have length > 1')
     s = scipy.interpolate.UnivariateSpline(x, y, w=None, bbox=[None,None], k=degree, s=knots)
     return s(x)
+
 
 def chop(x0, sig=2):
     x0 = np.atleast_1d(x0)
@@ -135,6 +203,7 @@ def binAvg(inArray, axis=0, nInBin=10):
 
     return outArr
 
+
 def findConsecutive(inVec, increment=0):
     """from Matlab code
 
@@ -168,6 +237,7 @@ def findConsecutive(inVec, increment=0):
 
     return (startNs,endNs)
 
+
 def findConsecutiveTrue(inVec, howMany=2):
     """
     %FIND_CONSECUTIVE_TRUE (ps-utils): indices of consecutive true entries
@@ -192,7 +262,8 @@ def findConsecutiveTrue(inVec, howMany=2):
 
     return (startNs, endNs)
 
-def smooth(x,window_len=10,window='hanning'):
+
+def smooth_filter(x, window_len=10, window='hanning', axis=-1):
     """smooth the data using a window with requested size.
     
     This method is based on the convolution of a scaled window with the signal.
@@ -223,30 +294,28 @@ def smooth(x,window_len=10,window='hanning'):
     TODO: the window parameter could be the window itself if an array instead of a string   
     """
 
-    if x.ndim != 1:
-        raise ValueError("smooth only accepts 1 dimension arrays.")
+    x = np.asarray(x)
 
     if x.size < window_len:
         raise ValueError("Input vector needs to be bigger than window size.")
 
-
     if window_len<3:
         return x
 
-
     if not window in ['flat', 'hanning', 'hamming', 'bartlett', 'blackman']:
-        raise ValueError("Window is on of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'")
+        raise ValueError("Window is one of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'")
 
-
-    s=np.r_[2*x[0]-x[window_len:1:-1],x,2*x[-1]-x[-1:-window_len:-1]]
-    #print(len(s))
     if window == 'flat': #moving average
         w=np.ones(window_len,'d')
     else:
         w=eval('np.'+window+'(window_len)')
 
-    y=np.convolve(w/w.sum(),s,mode='same')
-    return y[window_len-1:-window_len+1]
+    def run_conv(x, wnorm, window_len):
+        s = np.r_[2 * x[0] - x[window_len:1:-1], x, 2 * x[-1] - x[-1:-window_len:-1]]
+        y=np.convolve(wnorm,s,mode='same')
+        return y[window_len-1:-window_len+1]
+
+    return np.apply_along_axis(run_conv, axis, x, w/w.sum(), window_len)
 
 
 def vec2padded(invec, startNs, endNs=None, pad=np.NaN, dtype='float64', matOffsets=None):
