@@ -5,6 +5,7 @@ from . import math
 from . import memProfile
 from . import plotColors
 from . import string
+from . import paths
 import importlib
 
 from . import _version
