@@ -92,3 +92,20 @@ def write_tiff_stack(im, outname):
         with tifffile.TiffWriter(outname, imagej=True) as stack:
             for iF in range(im.shape[0]):
                 stack.save(im[iF,:,:], photometric='minisblack')
+
+
+def tif_file_get_dims(fname):
+    """"get dimensions of a tif file on disk
+    Returns:
+        shape: e.g. (nFr, nY, nX)
+
+    After CaImAn code 180508 MH
+    """
+    with tifffile.TiffFile(fname) as tf:
+        T = len(tf.pages)
+        if T == 1:  # Fiji-generated TIF
+            is_fiji = True
+            T, d1, d2 = tf[0].shape
+        else:
+            d1, d2 = tf.pages[0].shape
+    return (T,d1,d2)
