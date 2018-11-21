@@ -23,7 +23,7 @@ class AnchoredScaleBar(AnchoredOffsetbox):
             - transform : the coordinate frame (typically axes.transData)
             - sizex,sizey : width of x,y bar, in data units. 0 to omit
             - labelx,labely : labels for x,y bars; None to omit
-            - loc : position in containing axes
+            - loc : position in containing axes, see matplotlib.offsetbox.AnchoredOffsetbox for docs
             - pad, borderpad : padding, in fraction of the legend font size (or prop)
             - sep : separation between labels and bars in points.
             - fontprops: dict specifying text label properties, https://matplotlib.org/users/text_props.html
@@ -69,9 +69,25 @@ def add_scalebar(ax, sizex=None, sizey=None, hidex=True, hidey=True,
         - hidex,hidey : if True, hide x-axis and y-axis of parent
         - fmtstrx,fmtstry : label format string to use to generate labels.  
                e.g. xlabel is fmtstrx % sizex.  defaults: '%.1f'
-        - **kwargs : additional arguments passed to AnchoredScaleBars
- 
-    Returns created scalebar object
+        - **kwargs : additional arguments passed to AnchoredScaleBars, e.g. loc
+
+    Notes: 
+        loc: string or integer (see mpl.offsetbox.AnchoredOffsetbox)
+            The valid location codes are:
+
+            'upper right'  : 1,
+            'upper left'   : 2,
+            'lower left'   : 3,
+            'lower right'  : 4,
+            'right'        : 5, (same as 'center right', for back-compatibility)
+            'center left'  : 6,
+            'center right' : 7,
+            'lower center' : 8,
+            'upper center' : 9,     
+            'center'       : 10,
+
+    Returns:
+        created scalebar object
     """
     def f(axis):
         l = axis.get_majorticklocs()
