@@ -142,7 +142,7 @@ def printoptions(strip_zeros=True, **kwargs):
 
 #################################################
 
-def cdfplot(inputV):
+def cdfplot(inputV, **kwargs):
     """Plot empirical cdf of input vector.
 
     Calls plotMH.cdfXY
@@ -151,7 +151,8 @@ def cdfplot(inputV):
 
     xp = np.hstack((np.min(inputV),x,np.max(inputV)))
     yp = np.hstack((0,y,1))
-    tH = plt.step(xp,yp)
+    tH = plt.step(xp,yp, where='post', **kwargs)
+
 
     return tH
 
