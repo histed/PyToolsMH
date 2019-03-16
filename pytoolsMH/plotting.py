@@ -183,3 +183,50 @@ def setAxFontSizes(text_pts=7, ticklabel_pts=6, axH=None):
     for tA in axH.get_xticklabels()+axH.get_yticklabels():
         tA.set_fontsize(ticklabel_pts)
     
+
+
+
+## tick/label fixups
+def ticks_subset_labeled(ticklabel_ns, nticks, tick_locs=None, axisobj=None):
+    """specify which ticks to label on an axis
+    Forces a specified number of ticks (sets the tick locator)
+
+    Example:
+        ticks_subset_labeled([0,4], 5, ax.xaxis)
+
+    Args:
+        ticklabel_ns: (sequence, len nticks) which of the ticks on an axis to keep labels for
+        nticks: how many total ticks on the axis
+        tick_locs: (sequence, len nticks) where to put the ticks
+        axisobj: e.g. ax.xaxis, ax.yaxis
+
+    Notes: 
+        this ticker/formatter setup in matplotlib is unwieldy and pretty slow.  
+        What this function does: sets the ticker to make sure we know how many ticks there are.  
+        Then, installs a function formatter that sets non-kept tick labels to the empty string.
+        (Could probably make the labels fixed too, if the function calls prove slow.)
+        If you don't like the default formatter, use this function as an example and install your own formatter/locator.
+     """
+    if axisobj==None:
+        axisobj = plt.gca().xaxis
+
+    if tick_locs==None:
+        axisobj.set_major_locator(plt.MaxNLocator(nbins=nticks-1, min_n_ticks=nticks))
+    else:
+        axisobj.set_major_locator(plt.FixedLocator(tick_locs))
+
+    oldformatter = axisobj.get_major_formatter()
+    print(oldformatter)
+    def locf(loc,pos):
+        if pos in ticklabel_ns:
+            return oldformatter(loc)
+        else:
+            return ''
+    axisobj.set_major_formatter(plt.FuncFormatter(locf))
+
+def ticklabel_endonly(ax, ticklength=2.5):
+    """Set only two major ticks, fill in the rest with minor ticks of the same length."""
+    ax.tick_params(which='both', length=ticklength)
+    for sub in [ax.xaxis,ax.yaxis]:
+        sub.set_major_locator(plt.MaxNLocator(1))
+        sub.set_minor_locator(plt.AutoLocator())
