@@ -102,7 +102,13 @@ def smooth_lowess(y, x=None, span=10, robust=False, iter=None, axis=-1):
         x: None (default) or 1d ndarray, same length as specified axis of y.  If None, use 1:len(y)
         robust: bool, default False.  Whether to reweight to reduce influence of outliers, see docs
         span: number of pts, or percent of total number of points, as in matlab smooth.m
-        axis: the axis to smooth over.  """
+        axis: the axis to smooth over.  
+
+    Notes:
+        Has MATLAB's nan behavior: drops nan's before smoothing, then puts the nans
+        back in the same places in the smoothed array and returns.
+
+"""
     
     import statsmodels.nonparametric.api
 
@@ -137,8 +143,13 @@ def smooth_lowess(y, x=None, span=10, robust=False, iter=None, axis=-1):
 
     # iterate over the specified axis.  Note we need a func because lowess() returns a tuple
     def runonvec(y,x,frac,iter,delta):
-        return statsmodels.nonparametric.api.lowess(y,x,
-                                                    frac, it=iter, delta=delta, missing='drop')[:,1]
+        # remove nans manually
+        ns = np.where(~np.isnan(y))
+        ysm = statsmodels.nonparametric.api.lowess(y[ns],x[ns],
+                                                    frac, it=iter, delta=delta, missing='raise')[:,1]
+        yret = y.copy() # contains nans
+        yret[ns] = ysm
+        return yret
     smY = np.apply_along_axis(runonvec, axis, y, x, frac, iter, delta)
 
     return smY
