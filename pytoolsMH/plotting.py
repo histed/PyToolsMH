@@ -187,7 +187,7 @@ def setAxFontSizes(text_pts=7, ticklabel_pts=6, axH=None):
 
 
 ## tick/label fixups
-def ticks_subset_labeled(ticklabel_ns, nticks, tick_locs=None, axisobj=None):
+def ticks_subset_labeled(ticklabel_ns, nticks=None, tick_locs=None, axisobj=None):
     """specify which ticks to label on an axis
     Forces a specified number of ticks (sets the tick locator)
 
@@ -207,10 +207,10 @@ def ticks_subset_labeled(ticklabel_ns, nticks, tick_locs=None, axisobj=None):
         (Could probably make the labels fixed too, if the function calls prove slow.)
         If you don't like the default formatter, use this function as an example and install your own formatter/locator.
      """
-    if axisobj==None:
+    if axisobj is None:
         axisobj = plt.gca().xaxis
 
-    if tick_locs==None:
+    if tick_locs is None:
         axisobj.set_major_locator(plt.MaxNLocator(nbins=nticks-1, min_n_ticks=nticks))
     else:
         axisobj.set_major_locator(plt.FixedLocator(tick_locs))
@@ -219,11 +219,14 @@ def ticks_subset_labeled(ticklabel_ns, nticks, tick_locs=None, axisobj=None):
     print(oldformatter)
     def locf(loc,pos):
         if pos in ticklabel_ns:
-            return oldformatter(loc)
+            #return oldformatter(loc)
+            return '%g'%loc
         else:
             return ''
     axisobj.set_major_formatter(plt.FuncFormatter(locf))
 
+
+    
 def ticklabel_endonly(ax, ticklength=2.5):
     """Set only two major ticks, fill in the rest with minor ticks of the same length."""
     ax.tick_params(which='both', length=ticklength)
