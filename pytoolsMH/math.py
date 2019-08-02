@@ -170,7 +170,7 @@ def chop(x0, sig=2):
     zeroIx = np.array(x0)==0
     x = np.array(x0, dtype='f8')  # must be float for chop to make sense.  Later, support single precision?
     x[zeroIx] = 1  # will unmask below
-    nSig = sig-(np.floor(np.log10(x)))-1
+    nSig = sig-(np.floor(np.log10(np.abs(x))))-1
     if np.size(x) == 1:
         x = [x]
         nSig = [nSig]
