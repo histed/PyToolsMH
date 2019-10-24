@@ -13,14 +13,14 @@ def get_current_notebook_filename():
         - 180510: Only tested on jupyterlab
         - Don't use this to copy the notebook file, unless you figure out a way to make sure it's saved first
     """
+    kernel_id = re.search('kernel-(.*).json', ipykernel.connect.get_connection_file()).group(1)
     for s0 in list_running_servers():
         r = requests.get(
             url=s0['url'] + 'api/sessions',
             headers={'Authorization': 'token {}'.format(s0['token']),})
         r.raise_for_status()
         response = r.json()
-        kernel_id = re.search('kernel-(.*).json', ipykernel.connect.get_connection_file()).group(1)
-        notebook_paths = {r['kernel']['id']: r['notebook']['path'] for r in response}
+        notebook_paths = {r['kernel']['id']: r['notebook']['path'] for r in response if 'notebook' in r}
         if kernel_id in notebook_paths:
             return notebook_paths[kernel_id]
         else:
