@@ -10,8 +10,10 @@
 import numpy as np
 import scipy.interpolate
 import scipy.signal as ss
+import sys
 
 a_ = np.asarray
+r_ = np.r_
 
 
 
@@ -35,7 +37,7 @@ def smooth(y, x=None, span=None, method='lowess', axis=-1, **kwArgs):
     npts = y.shape[axis]
     if x is None:
         x = np.arange(npts)  # evenly spaced 0..npts
-    print(len(x),len(y))
+    #print(len(x),len(y))
 
     if method == 'lowess':
         return smooth_lowess(y, x, span=span, axis=axis, **kwArgs)
@@ -93,6 +95,47 @@ def smooth_lowess_biostat(y, x=None, span=10, iter=3):
     return smY
 
 
+def smooth_lowess_bootstrap(y, x=None, ci=95, nbootreps=1000, noutpts=100, **kwargs):
+    """Bootstraps confidence intervals around a lowess smoothing fit
+    Args:
+        noutpts: number of points in even grid each boostrap run is interpolated to
+        **kwargs: args passed directly to smooth_lowess
+    Returns:
+        (ylow, yhigh, out_xs, boot_mat)
+        out_xs: since we reinterpolate over a new x grid for each bootstrap run,
+          we need these for plotting
+    Notes:
+        - to avoid having multiple items at a single point we add a small value to each x,
+          could perhaps do this better by setting a weight in lowess()
+    """
+    def single_sm(xs0, ys0):
+        sortNs = np.argsort(xs0)
+        xs0 = xs0[sortNs]
+        ys0 = ys0[sortNs]
+        ysSm = smooth_lowess(ys0, xs0, **kwargs)
+        return ysSm, xs0
+    xs,ys = x,y
+
+    nPts = len(y)
+    out_xs = np.linspace(np.min(x), np.max(x), noutpts)
+    bm = np.nan*np.zeros((nbootreps, noutpts))
+    adj_xs = np.min(np.abs(np.diff(sorted(xs))))*0.0001 #don't allow getting to zero
+    assert np.all(adj_xs > sys.float_info.epsilon*1000), 'xs too tightly spaced for this random strategy'
+    # shifting to weighting instead of jitter would fix the above
+    for iB in range(nbootreps):
+        bNs = np.random.choice(np.arange(nPts), size=(nPts,), replace=True)
+        xsB = xs[bNs]
+        ysB = ys[bNs]
+
+        xsB = xsB + np.random.rand(len(xsB))*adj_xs
+        ysSm, xs0 = single_sm(xsB, ysB)
+        ysOut = np.interp(out_xs, xs0, ysSm)
+        bm[iB,:] = ysOut
+    plow = np.percentile(bm, 100-ci, axis=0)
+    phigh = np.percentile(bm, ci, axis=0)
+    return (plow, phigh, out_xs, bm)
+
+
 
 
 def smooth_lowess(y, x=None, span=10, robust=False, iter=None, axis=-1):
@@ -102,13 +145,12 @@ def smooth_lowess(y, x=None, span=10, robust=False, iter=None, axis=-1):
         x: None (default) or 1d ndarray, same length as specified axis of y.  If None, use 1:len(y)
         robust: bool, default False.  Whether to reweight to reduce influence of outliers, see docs
         span: number of pts, or percent of total number of points, as in matlab smooth.m
-        axis: the axis to smooth over.  
+        axis: the axis to smooth over.
 
     Notes:
         Has MATLAB's nan behavior: drops nan's before smoothing, then puts the nans
         back in the same places in the smoothed array and returns.
-
-"""
+    """
     
     import statsmodels.nonparametric.api
 

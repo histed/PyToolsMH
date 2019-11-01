@@ -1,9 +1,16 @@
+import warnings
+# warnings thrown via imports
+warnings.filterwarnings("ignore", "Using or importing the ABCs from 'collections'") # DeprecationWarning
+warnings.filterwarnings("ignore", "zmq.eventloop.ioloop is deprecated in pyzmq 17") # DeprecationWarning
+
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import pytest
+import sys
 
 import pytoolsMH as ptMH
+
 
 # 180430: call smooth() and exercise the three smoothing methods.  Mostly do not do output checking.
 
@@ -35,3 +42,14 @@ def test_smooth(smoothdata):
     # sgolay
     sm1 = ptMH.math.smooth(smoothdata, method='sgolay', span=11, axis=axis, polyorder=2)
     
+
+def test_lowess_bootstrap(smoothdata):
+    # note: smoothdata has small spacing that is a problem for sorting/jitter in bootstrap
+    # also this only works for 1d data
+    if smoothdata.ndim == 2:
+        return
+    smoothdata = smoothdata + 3 #np.sin(np.linspace(-3,3)) + 3
+    xs = np.r_[:len(smoothdata)]*1.0
+    xs[-10:] = xs[-10:] - 0.5  # make distances not always the same
+    (ylow,yhigh,out_xs,boot_mat) = ptMH.math.smooth_lowess_bootstrap(smoothdata, xs, ci=95, nbootreps=10, noutpts=100)
+    # not checking output for now - bootstrap is a fundamentally random process.  We could cap it probalistically if we want...
