@@ -210,17 +210,18 @@ def smooth_spline(y, x=None, knots=None, degree=3):
 
 
 def chop(x0, sig=2):
-    x0 = np.atleast_1d(x0)
+    xin_ndim = np.ndim(x0)
+    x0 = np.atleast_1d(x0) # will promote scalars to an array
     zeroIx = np.array(x0)==0
     x = np.array(x0, dtype='f8')  # must be float for chop to make sense.  Later, support single precision?
     x[zeroIx] = 1  # will unmask below
     nSig = sig-(np.floor(np.log10(np.abs(x))))-1
-    if np.size(x) == 1:
-        x = [x]
-        nSig = [nSig]
     chopped = np.array([np.around(x0,int(n0)) for (x0,n0) in zip(x,nSig)])
     chopped[zeroIx] = 0
+    if xin_ndim == 0:
+        chopped = np.squeeze(chopped) # drop back to 0-d if scalar passed in
     return chopped
+
 
 ############### 
 # misc numpy stuff for vectorizing
