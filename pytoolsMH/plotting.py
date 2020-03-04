@@ -145,7 +145,7 @@ def printoptions(strip_zeros=True, **kwargs):
 def cdfplot(inputV, **kwargs):
     """Plot empirical cdf of input vector.
 
-    Calls plotMH.cdfXY
+    Calls plotMH.cdfXY, and uses plt.step() to draw the figure; kwargs get passed to plt.step()
     """
     (x,y) = cdfXY(inputV)
 
