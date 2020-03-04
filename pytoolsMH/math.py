@@ -167,7 +167,8 @@ def smooth_lowess(y, x=None, span=10, robust=False, iter=None, axis=-1):
     if len(y) < 2:
         raise ValueError('Input must have length > 1')
     if len(x) != np.shape(y)[axis]:
-        raise ValueError(f'x has len {len(x)}, mismatch with y (ax {axis}), has len {np.shape(y)[axis]}')
+        raise ValueError('x has len %d, mismatch with y (ax %d), has len %d'
+                         % (len(x), axis, np.shape(y)[axis]))
 
     assert (np.all(np.diff(x)>0)), 'x must be strictly increasing'  # or output will be all nans
 
