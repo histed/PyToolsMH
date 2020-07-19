@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
-from skimage.external import tifffile
+import tifffile
 
 a_ = np.asarray
 r_ = np.r_
