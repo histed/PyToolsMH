@@ -1,3 +1,11 @@
+from __future__ import print_function
+import copy
+import types
+import sys
+import numpy as np
+from . import memProfile as ptmp
+r_ = np.r_
+
 
 def str2bool_onlyknown(v):
     if v.lower() in ("yes", "true", "t", "1"):
@@ -33,3 +41,7 @@ def format_bytes(size, format_str='{size:.3g} {suffix}'):
         n += 1
     return format_str.format(size=size, suffix=power_labels[n]+'B')
 
+if sys.version_info[0] >= 3 and sys.version_info[1] >= 4:
+    from . import string_py3
+    whos_obj = string_py3.whos_obj
+    whos_dict = string_py3.whos_dict

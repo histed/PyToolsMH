@@ -2,9 +2,6 @@ from __future__ import print_function
 import sys
 import numpy as np
 import pickle
-import types
-import copy
-from . import string as ptMHstring
 from sys import getsizeof, stderr
 from itertools import chain
 from collections import deque
@@ -51,98 +48,6 @@ def total_size(o, handlers={}, verbose=False):
         return s
 
     return sizeof(o)
-
-
-def print_locals(in_dict):
-    """Show information: sizes, types, bytes, of variables in memory
-
-    Args: 
-         in_dict
-    
-    Returns: none
-        Just prints info using print()
-
-    Examples:
-        print_vars(locals())
-        Prints:
-
-            Modules: 
-              colorama, copy, exposure, feature, ii, imp, io, mpimg, mpl
-
-            Functions: 
-              a_, glob, info, print_by_type, toFullMat
-
-            F                   : numpy.ndarray                           : shape (256, 256)   dtype float64         : size:  512 kB
-            F0                  : numpy.ndarray                           : shape (256, 256)   dtype float64         : size:  512 kB
-            In                  : list                                    : len 69                                   : size:   57 kB
-            Out                 : dict                                    : len 12                                   : size:    2 kB
-            PCA                 : abc.ABCMeta                             :                                          : size:    1 kB
-
-            allstimavg          : numpy.ndarray                           : shape (4, 21, 256, 256) dtype float32    : size:   21 MB
-
-
-    Notes:
-        this is like MATLAB's whos function.  It's not far off from ipython %whos
-        - 200727: created MH
-    """
-    # 
-    
-    curr = copy.copy(in_dict)
-    typeD = {k: type(v) for k,v in curr.items()}
-
-    skipL = []
-    def print_by_type(curr, print_type=types.ModuleType, title='Modules: '):
-        modKL = [k for k,v in typeD.items() if v == print_type and k[0] is not '_' ]
-        print(f'{title}\n  ', end='')
-        for (iK,tK) in enumerate(sorted(modKL)):
-            tE = ', '
-            if iK == len(modKL)-1:
-                tE = ''
-            print(tK, end=tE)
-            if iK > 0 and iK % 15 == 0:
-                print('\n  ', end='')
-        print('\n')
-        return modKL
-
-    tS = print_by_type(curr, types.ModuleType, title='Modules: ')
-    skipL.extend(tS)
-    tS = print_by_type(curr, types.FunctionType, title='Functions: ')
-    skipL.extend(tS)
-
-    nPrinted = 0
-    for tK,tV in sorted(curr.items()):
-        if tK[0] == '_' or tK in skipL:
-            continue
-        if nPrinted > 0 and nPrinted % 5 == 0:
-            print('')
-
-        # format correctly based on type ########
-        tmod = tV.__class__.__module__
-        tname = tV.__class__.__name__
-
-        # construct the type name
-        if type(tV).__name__ == 'type':  # some functions/classes just say 'type' as type
-            modS = f"type from {tV.__module__}"
-        elif tmod == 'builtins':  
-            modS = tname
-        else:
-            modS = tmod + '.' + tname
-
-        # add extra info based on type
-        extraS = ''
-        if tname == 'list' or tname == 'tuple' or tname == 'dict':
-            extraS = f'len {len(tV)}'
-        elif tname == 'ndarray':
-            extraS = f'shape {str(np.shape(tV)):12} dtype {tV.dtype}'
-
-        # size in bytes
-        sizeStr = ptMHstring.format_bytes(total_size(tV), format_str='{size:4.0f} {suffix}')
-
-        # print it
-        print(f'{tK:20}: {modS:40}: {extraS:40} : size: {sizeStr}')
-
-        nPrinted = nPrinted + 1
-
 
 
 def memusage(inA):
