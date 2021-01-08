@@ -119,6 +119,7 @@ def smooth_lowess_bootstrap(y, x=None, ci=95, nbootreps=1000, noutpts=100, **kwa
     nPts = len(y)
     out_xs = np.linspace(np.min(x), np.max(x), noutpts)
     bm = np.nan*np.zeros((nbootreps, noutpts))
+    # find the random offset for jitter: 1e-4*smallest spacing
     adj_xs = np.min(np.abs(np.diff(sorted(xs))))*0.0001 #don't allow getting to zero
     assert np.all(adj_xs > sys.float_info.epsilon*1000), 'xs too tightly spaced for this random strategy'
     # shifting to weighting instead of jitter would fix the above
