@@ -44,8 +44,8 @@ def setRealtime(doRealtime=True):
 
     if doRealtime:
         extendedPolicy = timeConstraintThreadPolicy()
-        extendedPolicy.period = HZ/100 # abstime units, length of one bus cycle: this means run every 10 ms
-        extendedPolicy.computation = extendedPolicy.period/4 # give up to this time to execute
+        extendedPolicy.period = HZ//100 # abstime units, length of one bus cycle: this means run every 10 ms
+        extendedPolicy.computation = extendedPolicy.period//4 # give up to this time to execute
         extendedPolicy.constrain = extendedPolicy.period # and allow cpu cycles to be distributed anywhere in period
         extendedPolicy.preemptible=1
         extendedPolicy=getThreadPolicy(getDefault=True, flavour=THREAD_TIME_CONSTRAINT_POLICY)
