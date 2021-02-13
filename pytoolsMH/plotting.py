@@ -3,7 +3,6 @@ import numpy as np
 import warnings
 with warnings.catch_warnings():
     warnings.simplefilter("ignore") # 180109: block FutureWarning. Can delete this in future.  see https://github.com/statsmodels/statsmodels/issues/3868
-    import statsmodels.api as sm # recommended import; only works for scikits >= 0.4
 import matplotlib.pyplot as plt
 
 r_ = np.r_
@@ -142,7 +141,7 @@ def printoptions(strip_zeros=True, **kwargs):
 
 #################################################
 
-def cdfplot(inputV, **kwargs):
+def cdfplot(inputV, ax=None, **kwargs):
     """Plot empirical cdf of input vector.
 
     Calls plotMH.cdfXY, and uses plt.step() to draw the figure; kwargs get passed to plt.step()
@@ -151,10 +150,12 @@ def cdfplot(inputV, **kwargs):
 
     xp = np.hstack((np.min(inputV),x,np.max(inputV)))
     yp = np.hstack((0,y,1))
-    tH = plt.step(xp,yp, where='post', **kwargs)
-
+    if ax is None:
+        ax = plt.gca()
+    tH = ax.step(xp,yp, where='post', **kwargs)
 
     return tH
+
 
 def cdfXY(inputV):
     """compute empirical cdf from input vector.
@@ -165,11 +166,12 @@ def cdfXY(inputV):
     Note: for many X values / RV levels this can be inefficient - can add code to deal with that case
     (instead of using every x value, subset using e.g. linspace() )
     """
-    ecdf = sm.distributions.ECDF(inputV)
-    #x = np.linspace(min(inputV), max(inputV))
-    x = np.unique(inputV)
-    y = ecdf(x)
-    return  (x,y)
+    # used to do this with statsmodels.distributions.ECDF but this removes that dependency:
+    def ecdf(x):
+        xs = np.sort(x)
+        ys = np.arange(1, len(xs)+1)/float(len(xs))
+        return xs, ys
+    return ecdf(inputV)
 
 ################
 # small plotting style functions
