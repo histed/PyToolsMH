@@ -62,7 +62,7 @@ def whos_dict(in_dict, skip_underscores=True):
 
     skipL = []
     def print_by_type(curr, print_type=types.ModuleType, title='Modules: '):
-        modKL = [k for k,v in typeD.items() if v == print_type and not (skip_underscores and k[0] is '_') ]
+        modKL = [k for k,v in typeD.items() if v == print_type and not (skip_underscores and k[0] == '_') ]
         print('%s\n  '%title, end='')
         for (iK,tK) in enumerate(sorted(modKL)):
             tE = ', '
