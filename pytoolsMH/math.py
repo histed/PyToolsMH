@@ -165,7 +165,7 @@ def smooth_lowess(y, x=None, span=10, robust=False, iter=None, axis=-1):
         x = np.arange(nPts, dtype='float')
     else:
         x = a_(x, dtype='f8')
-    if len(y) < 2:
+    if nPts < 2:
         raise ValueError('Input must have length > 1')
     if len(x) != np.shape(y)[axis]:
         raise ValueError('x has len %d, mismatch with y (ax %d), has len %d'
