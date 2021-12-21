@@ -114,6 +114,8 @@ def smooth_lowess_bootstrap(y, x=None, ci=95, nbootreps=1000, noutpts=100, **kwa
         ys0 = ys0[sortNs]
         ysSm = smooth_lowess(ys0, xs0, **kwargs)
         return ysSm, xs0
+    if x is None:
+        x = np.r_[0:len(y)]
     xs,ys = x,y
 
     nPts = len(y)

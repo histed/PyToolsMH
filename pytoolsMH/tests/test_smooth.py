@@ -53,3 +53,4 @@ def test_lowess_bootstrap(smoothdata):
     xs[-10:] = xs[-10:] - 0.5  # make distances not always the same
     (ylow,yhigh,out_xs,boot_mat) = ptMH.math.smooth_lowess_bootstrap(smoothdata, xs, ci=95, nbootreps=10, noutpts=100)
     # not checking output for now - bootstrap is a fundamentally random process.  We could cap it probalistically if we want...
+    (ylow,yhigh,out_xs,boot_mat,ys0,xs0) = ptMH.math.smooth_lowess_bootstrap(smoothdata, nbootreps=1, noutpts=100) # check for no x passed in
