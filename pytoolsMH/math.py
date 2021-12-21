@@ -97,13 +97,28 @@ def smooth_lowess_biostat(y, x=None, span=10, iter=3):
 
 def smooth_lowess_bootstrap(y, x=None, ci=95, nbootreps=1000, noutpts=100, **kwargs):
     """Bootstraps confidence intervals around a lowess smoothing fit
+    Will sort xs, and slightly jitter them to avoid duplicates. Jitter code is a bit
+    fragile. Ultimately we should switch to weighting to avoid jitter.
+
+    Does the smoothing on the grid (x) points selected by each bootstrap run,
+     then for each run interpolates back to an evenly-spaced set of x points (out_xs).
+
     Args:
-        noutpts: number of points in even grid each boostrap run is interpolated to
+        y:
+        x:
+        ci:
+        nbootreps:
+        noutpts: number of points in even grid each boostrap run is interpolated to.
+
         **kwargs: args passed directly to smooth_lowess
     Returns:
-        (ylow, yhigh, out_xs, boot_mat)
+        (ylow, yhigh, out_xs, boot_mat, y_sm, x_sm)
         out_xs: since we reinterpolate over a new x grid for each bootstrap run,
           we need these for plotting
+        y_sm: the non-bootstrapped smooth. Does sorting and jitter before smoothing.
+          Does not interpolate to the out_xs grid.
+          To plot this, use plot(x_sm, y_sm).
+        x_sm: the xs corresponding to y_sm. Sorted, so may differ from the input x
     Notes:
         - to avoid having multiple items at a single point we add a small value to each x,
           could perhaps do this better by setting a weight in lowess()
@@ -118,13 +133,20 @@ def smooth_lowess_bootstrap(y, x=None, ci=95, nbootreps=1000, noutpts=100, **kwa
         x = np.r_[0:len(y)]
     xs,ys = x,y
 
+    if np.any(np.diff(np.sort(x)) == 0):
+        raise RuntimeError('Cannot have duplicate input x values: can add a small random value to each x')
+
     nPts = len(y)
     out_xs = np.linspace(np.min(x), np.max(x), noutpts)
     bm = np.nan*np.zeros((nbootreps, noutpts))
     # find the random offset for jitter: 1e-4*smallest spacing
     adj_xs = np.min(np.abs(np.diff(sorted(xs))))*0.0001 #don't allow getting to zero
-    assert np.all(adj_xs > sys.float_info.epsilon*1000), 'xs too tightly spaced for this random strategy'
-    # shifting to weighting instead of jitter would fix the above
+    assert np.all(adj_xs > sys.float_info.epsilon*1000), 'xs too tightly spaced for this random strategy, try adding a small random to each x'
+    # TODO shifting to weighting instead of jitter would fix the above
+
+    # do non-random smooth on all the points with random jitter
+    y_sm, x_sm = single_sm(xs+np.random.rand(len(xs))*adj_xs, ys)
+
     for iB in range(nbootreps):
         bNs = np.random.choice(np.arange(nPts), size=(nPts,), replace=True)
         xsB = xs[bNs]
@@ -136,7 +158,7 @@ def smooth_lowess_bootstrap(y, x=None, ci=95, nbootreps=1000, noutpts=100, **kwa
         bm[iB,:] = ysOut
     plow = np.percentile(bm, 100-ci, axis=0)
     phigh = np.percentile(bm, ci, axis=0)
-    return (plow, phigh, out_xs, bm)
+    return (plow, phigh, out_xs, bm, y_sm, x_sm)
 
 
 

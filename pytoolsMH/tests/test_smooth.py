@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import pytest
-import sys
+r_ = np.r_
 
 import pytoolsMH as ptMH
 
@@ -51,6 +51,10 @@ def test_lowess_bootstrap(smoothdata):
     smoothdata = smoothdata + 3 #np.sin(np.linspace(-3,3)) + 3
     xs = np.r_[:len(smoothdata)]*1.0
     xs[-10:] = xs[-10:] - 0.5  # make distances not always the same
-    (ylow,yhigh,out_xs,boot_mat) = ptMH.math.smooth_lowess_bootstrap(smoothdata, xs, ci=95, nbootreps=10, noutpts=100)
+    (ylow,yhigh,out_xs,boot_mat,ys0,xs0) = ptMH.math.smooth_lowess_bootstrap(smoothdata, xs, ci=95, nbootreps=10, noutpts=100)
     # not checking output for now - bootstrap is a fundamentally random process.  We could cap it probalistically if we want...
+
     (ylow,yhigh,out_xs,boot_mat,ys0,xs0) = ptMH.math.smooth_lowess_bootstrap(smoothdata, nbootreps=1, noutpts=100) # check for no x passed in
+    # check a case with duplicate xs - should throw an error
+    with pytest.raises(RuntimeError):
+        (ylow,yhigh,out_xs,boot_mat,ys0,xs0) = ptMH.math.smooth_lowess_bootstrap(r_[1,2,3], r_[0,0,1], nbootreps=1, noutpts=100)
