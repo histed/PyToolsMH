@@ -400,7 +400,7 @@ def smooth_filter(x, window_len=10, window='hanning', axis=-1):
     return np.apply_along_axis(run_conv, axis, x, w/w.sum(), window_len)
 
 
-def vec2padded(invec, startNs, endNs=None, pad=np.NaN, dtype='float64', matOffsets=None):
+def vec2padded(invec, startNs, endNs=None, pad=np.nan, dtype='float64', matOffsets=None):
     """Convert vector to padded 2d array; ragged vectors allowed
 
     each span from startNs[i] to endNs[i] is a row of the output
@@ -443,14 +443,14 @@ def vec2padded(invec, startNs, endNs=None, pad=np.NaN, dtype='float64', matOffse
     return outMat
 
 def convertToFloat(listV):
-    """convert list to float; deals with errors by substituting NaNs"""
-    outA = np.ones((len(listV),))*np.NaN
+    """convert list to float; deals with errors by substituting nans"""
+    outA = np.ones((len(listV),))*np.nan
 
     for i, tItem in enumerate(listV):
         try:
             outA[i] = np.float(tItem)
         except:
-            outA[i] = np.NaN;  # failure to convert
+            outA[i] = np.nan;  # failure to convert
 
     return(outA)
 
